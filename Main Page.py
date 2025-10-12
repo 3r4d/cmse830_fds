@@ -1,5 +1,5 @@
 import pandas as pd
-import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure, tight_layout, show, title
 import seaborn as sns
 from imblearn.over_sampling import SMOTE
 from sklearn.impute import SimpleImputer
@@ -92,18 +92,18 @@ print(df_balanced_diabetes['diabetes'].value_counts())
 
 #heatmap
 #stroke SMOTE
-plt.figure(figsize=(12, 10))
+figure(figsize=(12, 10))
 sns.heatmap(df_stroke_smote.corr(numeric_only=True),
             annot=True, cmap='coolwarm',
             vmin=-1, vmax=1, fmt=".2f", linewidths=0.5)
-plt.title("Correlation Heatmap - Stroke-SMOTE", fontsize=16, pad=15)
-plt.tight_layout()
-plt.show()
+title("Correlation Heatmap - Stroke-SMOTE", fontsize=16, pad=15)
+tight_layout()
+show()
 
 
 
 #diabetes
-plt.figure(figsize=(8, 6))  # Adjust figure size if needed
+figure(figsize=(8, 6))  # Adjust figure size if needed
 sns.heatmap(df_balanced_diabetes.corr(numeric_only=True),
             annot=True,
             cmap='coolwarm',
@@ -111,9 +111,9 @@ sns.heatmap(df_balanced_diabetes.corr(numeric_only=True),
             fmt=".2f",
             linewidths=0.5)
 
-plt.title("Correlation Heatmap - Diabetes", fontsize=16, pad=15)
-plt.tight_layout()
-plt.show()
+title("Correlation Heatmap - Diabetes", fontsize=16, pad=15)
+tight_layout()
+show()
 
 
 import pandas as pd
@@ -153,10 +153,10 @@ feat_importance_stroke = pd.DataFrame({
 }).sort_values(by='Importance', ascending=False)
 
 # Plot
-plt.figure(figsize=(10,6))
+figure(figsize=(10, 6))
 sns.barplot(x='Importance', y='Feature', data=feat_importance_stroke, palette='viridis')
-plt.title("Stroke Dataset - Feature Importance (Random Forest)")
-plt.show()
+title("Stroke Dataset - Feature Importance (Random Forest)")
+show()
 
 
 # Load and reorder
@@ -184,7 +184,7 @@ feat_importance_diabetes = pd.DataFrame({
 }).sort_values(by='Importance', ascending=False)
 
 # Plot
-plt.figure(figsize=(10,6))
+figure(figsize=(10, 6))
 sns.barplot(x='Importance', y='Feature', data=feat_importance_diabetes, palette='magma')
-plt.title("Diabetes Dataset - Feature Importance (Random Forest)")
-plt.show()
+title("Diabetes Dataset - Feature Importance (Random Forest)")
+show()
