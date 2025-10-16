@@ -56,8 +56,8 @@ def load_datasets(stroke_path, diabetes_path):
 
     return df_stroke, df_diabetes
 
-stroke_path = "healthcare-dataset-stroke-data.csv"
-diabetes_path = "diabetes_prediction_dataset.csv"
+stroke_path = "../Data/healthcare-dataset-stroke-data.csv"
+diabetes_path = "../Data/diabetes_prediction_dataset.csv"
 
 df_stroke, df_diabetes = load_datasets(stroke_path, diabetes_path)
 

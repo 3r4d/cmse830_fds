@@ -1,8 +1,8 @@
 streamlit
+seaborn
 pandas
 numpy
 matplotlib
-seaborn
 scikit-learn
 imblearn
 altair
