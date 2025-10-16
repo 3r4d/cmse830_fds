@@ -1,14 +1,5 @@
 import streamlit as st
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import numpy as np
-from sklearn.preprocessing import LabelEncoder
-from sklearn.impute import SimpleImputer
-from imblearn.over_sampling import SMOTE
-from sklearn.utils import resample
-import altair as alt
-from sklearn.linear_model import LogisticRegression
+
 
 
 st.set_page_config(layout="wide")
