@@ -37,14 +37,14 @@ diabetes_path = "C:/Users/brad_/MSU/Year 1/CMSE 830/Project/diabetes_prediction_
 
 df_stroke, df_diabetes = load_datasets(stroke_path, diabetes_path)
 
-st.write("now that we know that overlaps exist, lets take a look at what factors influence these disease the most.")
+st.write("Now that we know that overlaps exist, lets take a look at what factors influence these diseases the most.")
 st.write("Below are two charts showing the most important factors found in our data that influence the likelihood of having a stroke or developing diabetes.")
 st.write("According to these charts the factors are:")
 with st.expander("Stroke"):
-    st.write("age, smoking status, blood glucose (blood sugar), and hypertension (high blood pressure)")
+    st.write("Age, Smoking Status, Blood Glucose (Blood Sugar), and Hypertension (High Blood Pressure)")
 
 with st.expander("Diabetes"):
-    st.write("A1c, blood glucose (blood sugar), age, and BMI")
+    st.write("A1c, Blood Glucose (Blood Sugar), Age, and BMI")
 
 
 # -----------------------
@@ -127,7 +127,7 @@ def plot_feature_importance(feat_imp_df, title="Feature Importance", palette="ma
 # -----------------------
 # Stroke Random Forest
 # -----------------------
-st.header("Risk factors for stroke and diabetes")
+st.header("Risk Factors for Stroke and Diabetes")
 
 st.subheader("Stroke Dataset")
 X_stroke = df_stroke_smote.drop('stroke', axis=1)

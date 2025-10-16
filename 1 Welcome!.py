@@ -124,10 +124,9 @@ def plot_correlation_heatmap(df, title, figsize=(10,8)):
 
 
 
-st.write("Understanding health can be a difficult thing. With so many moving parts and stresses of the modern world it is tough to stay on top of managing our health. With the introduction of technology it is also hard to know what to trust. With this application you can explore two diseases (stroke and diabetes), in order to better understand the risk, statistics, and overlap between the two. In better understanding the disease, and the ways in which we can control them, we can hope to avoid what so many before us have experienced. I hope you enjoy the information within the app to better help your health management.")
+st.write("Understanding health can be a difficult thing. With so many moving parts and stresses of the modern world it is tough to stay on top of managing our health. With the introduction of technology, it is also hard to know what to trust. With this application you can explore two diseases (stroke and diabetes), in order to better understand the risk, statistics, and overlap between the two. In better understanding the disease, and the ways in which we can control them, we can hope to avoid what so many before us have experienced. I hope you enjoy the information within the app to better help your health management.")
 
-st.write("Let's take a look at something we all probably are aware of first. In the two graphs below you'll see the realationship between age and stroke/diabetes.")
-
+st.write("Let's start by taking a look at the relationship between your age and the likelihood you'll develop stroke/diabetes.")
 # -----------------------
 # Prepare age vs mean stroke probability
 # -----------------------
