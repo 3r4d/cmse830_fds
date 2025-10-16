@@ -62,7 +62,6 @@ diabetes_path = "data/diabetes_prediction_dataset.csv"
 df_stroke, df_diabetes = load_datasets(stroke_path, diabetes_path)
 
 
-
 # -----------------------
 # Balance Stroke Dataset with SMOTE
 # -----------------------
