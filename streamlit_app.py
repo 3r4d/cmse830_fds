@@ -29,3 +29,5 @@ custom_html = """
 """
 # Render the banner
 st.markdown(custom_html, unsafe_allow_html=True)
+
+st.write("Understanding health can be a difficult thing. With so many moving parts and stresses of the modern world it is tough to stay on top of managing our health. With the introduction of technology, it is also hard to know what to trust. With this application you can explore two diseases (stroke and diabetes), in order to better understand the risk, statistics, and overlap between the two. In better understanding the disease, and the ways in which we can control them, we can hope to avoid what so many before us have experienced. I hope you enjoy the information within the app to better help your health management.")
