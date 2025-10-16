@@ -94,7 +94,7 @@ def plot_correlation_heatmap(df, title, figsize=(10,8)):
 
 
 
-
+st.title("Effects of aging 👴")
 st.write("Let's start by taking a look at the relationship between your age and the likelihood you'll develop stroke/diabetes.")
 # -----------------------
 # Prepare age vs mean stroke probability
