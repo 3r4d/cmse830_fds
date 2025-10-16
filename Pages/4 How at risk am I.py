@@ -18,14 +18,14 @@ from sklearn.utils import resample
 # ------------------------------------------------------------
 
 # Original Stroke dataset
-stroke_path = "../Data/healthcare-dataset-stroke-data.csv"
+stroke_path = "data/healthcare-dataset-stroke-data.csv"
 df_stroke = pd.read_csv(stroke_path)
 df_stroke = df_stroke.drop(columns=['id', 'ever_married', 'work_type', 'Residence_type'])
 df_stroke = df_stroke[df_stroke['gender'] != 'Other']
 
 
 # Original Diabetes dataset
-diabetes_path = "../Data/diabetes_prediction_dataset.csv"
+diabetes_path = "data/diabetes_prediction_dataset.csv"
 new_order = ['gender', 'age', 'hypertension', 'heart_disease', 'blood_glucose_level',
              'bmi', 'smoking_history', 'HbA1c_level', 'diabetes']
 df_diabetes = pd.read_csv(diabetes_path)
