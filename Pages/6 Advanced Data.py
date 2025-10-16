@@ -31,8 +31,8 @@ def load_datasets(stroke_path, diabetes_path):
     return df_stroke, df_diabetes
 
 
-stroke_path = "C:/Users/brad_/MSU/Year 1/CMSE 830/Project/healthcare-dataset-stroke-data.csv"
-diabetes_path = "C:/Users/brad_/MSU/Year 1/CMSE 830/Project/diabetes_prediction_dataset.csv"
+stroke_path = "healthcare-dataset-stroke-data.csv"
+diabetes_path = "diabetes_prediction_dataset.csv"
 
 df_stroke, df_diabetes = load_datasets(stroke_path, diabetes_path)
 df_stroke1 = df_stroke.copy()
