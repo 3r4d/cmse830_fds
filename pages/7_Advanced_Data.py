@@ -177,26 +177,4 @@ def plot_feature_importance(feat_imp_df, title="Feature Importance", palette="ma
     st.pyplot(fig)
 
 
-# # -----------------------
-# # Stroke Random Forest
-# # -----------------------
-# st.header("Feature Importance (Random Forest)")
-#
-# st.subheader("Stroke Dataset")
-# X_stroke = df_stroke_smote.drop('stroke', axis=1)
-# y_stroke = df_stroke_smote['stroke']
-# feat_imp_stroke, rf_stroke = train_rf_feature_importance(X_stroke, y_stroke)
-# plot_feature_importance(feat_imp_stroke, "Stroke Dataset - Feature Importance (Random Forest)", palette='viridis')
-#
-# # -----------------------
-# # Diabetes Random Forest
-# # -----------------------
-# st.subheader("Diabetes Dataset")
-# X_diabetes = df_balanced_diabetes.drop('diabetes', axis=1)
-# y_diabetes = df_balanced_diabetes['diabetes']
-# # Encode categorical columns
-# for col in ['gender', 'smoking_history']:
-#     X_diabetes[col] = LabelEncoder().fit_transform(X_diabetes[col])
-#
-# feat_imp_diabetes, rf_diabetes = train_rf_feature_importance(X_diabetes, y_diabetes)
-# plot_feature_importance(feat_imp_diabetes, "Diabetes Dataset - Feature Importance (Random Forest)")
+

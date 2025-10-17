@@ -81,6 +81,7 @@ for df in [df_stroke_smote, df_balanced_diabetes]:
 
 # ------------------------------------------------------------
 # Train Calibrated Stroke Model
+#help from chatGPT to calibrate the prediction model as the SMOTE and undersampled model were VERY far from realworld predictions
 # ------------------------------------------------------------
 X_stroke = df_stroke_smote.drop('stroke', axis=1)
 y_stroke = df_stroke_smote['stroke']
@@ -103,6 +104,7 @@ print("Stroke Brier score (calibrated):", brier_score_loss(y_test_s, y_prob_cal_
 
 # ------------------------------------------------------------
 # Train Calibrated Diabetes Model
+#help from chatGPT to calibrate the prediction model as the SMOTE and undersampled model were VERY far from realworld predictions
 # ------------------------------------------------------------
 X_diab = df_balanced_diabetes.drop('diabetes', axis=1)
 y_diab = df_balanced_diabetes['diabetes']

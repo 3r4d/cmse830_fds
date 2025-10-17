@@ -49,6 +49,7 @@ with st.expander("Diabetes"):
 
 # -----------------------
 # Balance Stroke Dataset with SMOTE
+#help from chatGPT to choose the best method of balancing with large datasets
 # -----------------------
 @st.cache_data
 def balance_stroke(df):
@@ -73,6 +74,7 @@ df_stroke_smote = balance_stroke(df_stroke)
 
 # -----------------------
 # Balance Diabetes Dataset with Undersampling
+#help from chatGPT to help choose best way to balance large datasets
 # -----------------------
 @st.cache_data
 def balance_diabetes(df):
@@ -126,6 +128,7 @@ def plot_feature_importance(feat_imp_df, title="Feature Importance", palette="ma
 
 # -----------------------
 # Stroke Random Forest
+#help from chatGPT for random forest
 # -----------------------
 st.header("Risk Factors for Stroke and Diabetes")
 
@@ -137,6 +140,7 @@ plot_feature_importance(feat_imp_stroke, "Stroke Dataset - Feature Importance (R
 
 # -----------------------
 # Diabetes Random Forest
+#help from chatGPT for random forest
 # -----------------------
 st.subheader("Diabetes Dataset")
 X_diabetes = df_balanced_diabetes.drop('diabetes', axis=1)

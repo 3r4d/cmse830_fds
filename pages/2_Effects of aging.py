@@ -98,6 +98,7 @@ st.title("👵Effects of aging 👴")
 st.write("Let's start by taking a look at the relationship between your age and the likelihood you'll develop stroke/diabetes.")
 # -----------------------
 # Prepare age vs mean stroke probability
+#help from chat GPT to convert original code into functions in order to utilize the cache_data
 # -----------------------
 @st.cache_data
 def prepare_age_stroke_data(df):
