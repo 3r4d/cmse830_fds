@@ -208,7 +208,6 @@ else:
                             else 1 if smoking == "former"
                             else 2 if smoking == "current"
                             else 3],
-        'HbA1c_level': [hba1c]
     })
 
     input_scaled = scaler_d.transform(input_data)
