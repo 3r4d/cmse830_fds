@@ -222,7 +222,7 @@ prob_heart = model_heart.predict_proba(age_range_heart.reshape(-1,1))[:,1]
 # Create DataFrame for Altair
 age_prob_heart_df = pd.DataFrame({
     'Age': age_range_heart,
-    'HeartDiseaseorAttack': prob
+    'HeartDiseaseorAttack': prob_heart
 })
 
 # Altair interactive plot
