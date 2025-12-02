@@ -195,7 +195,7 @@ else:  # This is the block for model_choice == "Heart Disease"
     # Re-add necessary inputs that were missing in the original 'else' block
     glucose = st.slider("Blood Glucose Level", 50.0, 300.0, 100.0)
     hba1c = st.slider("HbA1c Level", 3.0, 14.0, 5.5)  # ADDED
-    smoking = st.selectbox("Smoking History", ["never", "former", "current", "no info"])
+    smoking = st.selectbox("Smoking History", ["never", "former", "current"])
     heart_disease = st.checkbox("Heart Disease", value=False)  # ADDED
 
     # Prepare input - MUST match features used to train scaler_d
