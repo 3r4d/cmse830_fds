@@ -124,17 +124,18 @@ st.title("🧠 Health Risk Predictor (Calibrated Model)")
 st.write("Interactively explore how age, BMI, and health factors influence your probability of **stroke** or **diabetes**.")
 
 # Choose model type
-model_choice = st.radio("Select which condition to predict:", ["Stroke", "Diabetes"])
+model_choice = st.radio("Select which condition to predict:", ["Stroke", "Diabetes", "Heart disease"])
 
 # Common sliders
 age = st.slider("Age", 0, 100, 45)
 bmi = st.slider("BMI", 10.0, 60.0, 25.0)
 hypertension = st.checkbox("Hypertension (High Blood Pressure)", value=False)
-heart_disease = st.checkbox("Heart Disease", value=False)
+
 
 if model_choice == "Stroke":
     glucose = st.slider("Average Glucose Level", 50.0, 300.0, 100.0)
     smoking_status = st.selectbox("Smoking Status", ["never smoked", "formerly smoked", "smokes"])
+    heart_disease = st.checkbox("Heart Disease", value=False)
 
     # Prepare input
     input_data = pd.DataFrame({
@@ -160,10 +161,40 @@ if model_choice == "Stroke":
 
     st.metric("Predicted Stroke Probability", f"{prob_realistic*100:.2f}%")
 
-else:
+if model_choice == "Diabetes":
     glucose = st.slider("Blood Glucose Level", 50.0, 300.0, 100.0)
     hba1c = st.slider("HbA1c Level", 3.0, 14.0, 5.5)
     smoking = st.selectbox("Smoking History", ["never", "former", "current", "no info"])
+    heart_disease = st.checkbox("Heart Disease", value=False)
+
+    # Prepare input
+    input_data = pd.DataFrame({
+        'gender': [1],
+        'age': [age],
+        'hypertension': [int(hypertension)],
+        'heart_disease': [int(heart_disease)],
+        'blood_glucose_level': [glucose],
+        'bmi': [bmi],
+        'smoking_history': [0 if smoking == "never"
+                            else 1 if smoking == "former"
+                            else 2 if smoking == "current"
+                            else 3],
+        'HbA1c_level': [hba1c]
+    })
+
+    input_scaled = scaler_d.transform(input_data)
+    prob = diab_model.predict_proba(input_scaled)[:, 1][0]
+
+    # Re-anchor to real-world prevalence (~10%)
+    real_prevalence = 0.10
+    scaling_factor = real_prevalence / np.mean(y_prob_cal_d)
+    prob_realistic = min(prob * scaling_factor, 1.0)
+
+    st.metric("Predicted Diabetes Probability", f"{prob_realistic*100:.2f}%")
+
+else:
+    glucose = st.slider("Blood Glucose Level", 50.0, 300.0, 100.0)
+    smoking = st.selectbox("Smoking History", ["never", "former", "current"])
 
     # Prepare input
     input_data = pd.DataFrame({
