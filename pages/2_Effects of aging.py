@@ -31,6 +31,7 @@ def load_datasets(stroke_path, diabetes_path, heart_path):
     df_heart_new_order = ['Sex', 'Age', 'HighBP', 'HeartDiseaseorAttack', 'BMI', 'Smoker', 'HighChol', 'Diabetes', 'Stroke']
     df_heart = df_heart[df_heart_new_order]
 
+
     return df_stroke, df_diabetes, df_heart
 
 stroke_path = "data/healthcare-dataset-stroke-data.csv"
@@ -230,7 +231,7 @@ chart_heart = alt.Chart(age_prob_heart_df).mark_line(point=True).encode(
     y=alt.Y_heart('HeartDiseaseorAttack', title='Heart Disease or Heart Attack'),
     tooltip=['Age', 'HeartDiseaseorAttack']
 ).properties(
-    title='Predicted Probability of Heart Disease or Attack'
+    title='Predicted Probability of Heart Disease or Heart Attack'
 ).interactive()
 
 st.altair_chart(chart, use_container_width=True)
