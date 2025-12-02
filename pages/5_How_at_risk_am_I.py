@@ -193,7 +193,6 @@ if model_choice == "Diabetes":
     st.metric("Predicted Diabetes Probability", f"{prob_realistic*100:.2f}%")
 
 else:
-    glucose = st.slider("Blood Glucose Level", 50.0, 300.0, 100.0)
     smoking = st.selectbox("Smoking History", ["never", "former", "current"])
 
     # Prepare input
