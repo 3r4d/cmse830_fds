@@ -12,8 +12,11 @@ with st.expander("Stroke risk factors"):
 with st.expander("Diabetes risk factors"):
     st.write("High Blood Pressure, factors from Heart Disease, Obesity, and Smoking")
 
+with st.expander("Heart Disease risk factors"):
+    st.write("High Blood Pressure, High Cholesterol, Diabetes, Obesity, and Smoking")
+
 with st.expander("Overlapping risk factors"):
-    st.write("High Blood Pressure (manageable), Obesity (manageable), and Smoking (manageable)")
+    st.write("High Blood Pressure (manageable), High Cholesterol (manageable), Obesity (manageable), and Smoking (manageable)")
     st.write("We can see there is several manageable factors that overlap. It may be difficult, but these are in our control.")
     st.write("If you feel like you need help, please see the information sites tab to see where to get help in managing these factors.")
 
@@ -21,3 +24,4 @@ with st.expander("Sources"):
     st.write("https://www.cdc.gov/stroke/risk-factors/index.html")
     st.write("https://www.cdc.gov/diabetes/risk-factors/index.html")
     st.write("https://health.umms.org/2024/02/02/relationship-between-diabetes-and-stroke/")
+    st.write("https://www.cdc.gov/heart-disease/risk-factors/index.html")
