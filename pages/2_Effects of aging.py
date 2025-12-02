@@ -35,7 +35,7 @@ def load_datasets(stroke_path, diabetes_path, heart_path):
 
 stroke_path = "data/healthcare-dataset-stroke-data.csv"
 diabetes_path = "data/diabetes_prediction_dataset.csv"
-heart_path = "heart_disease_health_indicators_BRFSS2015.csv"
+heart_path = "data/heart_disease_health_indicators_BRFSS2015.csv"
 
 df_stroke, df_diabetes, heart_path = load_datasets(stroke_path, diabetes_path, heart_path)
 
