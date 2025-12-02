@@ -15,7 +15,7 @@ from sklearn.linear_model import LogisticRegression
 # Load Datasets
 # -----------------------
 @st.cache_data
-def load_datasets(stroke_path, diabetes_path):
+def load_datasets(stroke_path, diabetes_path, heart_path):
     df_stroke = pd.read_csv(stroke_path)
     df_stroke = df_stroke.drop(columns=['id', 'ever_married', 'work_type', 'Residence_type'])
     df_stroke = df_stroke[df_stroke['gender'] != 'Other']
@@ -25,12 +25,19 @@ def load_datasets(stroke_path, diabetes_path):
                  'bmi', 'smoking_history', 'HbA1c_level', 'diabetes']
     df_diabetes = df_diabetes[new_order]
 
-    return df_stroke, df_diabetes
+    df_heart = pd.read_csv(heart_path)
+    df_heart = df_heart.drop(columns=['PhysActivity', 'Fruits', 'AnyHealthcare', 'NoDocbcCost', 'GenHlth', 'MentHlth', 'PhysHlth',
+                            'DiffWalk', 'Education', 'Income', 'Veggies', 'HvyAlcoholConsump', 'CholCheck'])
+    df_heart_new_order = ['Sex', 'Age', 'HighBP', 'HeartDiseaseorAttack', 'BMI', 'Smoker', 'HighChol', 'Diabetes', 'Stroke']
+    df_heart = df_heart[df_heart_new_order]
+
+    return df_stroke, df_diabetes, df_heart
 
 stroke_path = "data/healthcare-dataset-stroke-data.csv"
 diabetes_path = "data/diabetes_prediction_dataset.csv"
+heart_path = "heart_disease_health_indicators_BRFSS2015.csv"
 
-df_stroke, df_diabetes = load_datasets(stroke_path, diabetes_path)
+df_stroke, df_diabetes, heart_path = load_datasets(stroke_path, diabetes_path, heart_path)
 
 
 # -----------------------
@@ -74,6 +81,33 @@ def balance_diabetes(df):
     return df_bal
 
 df_balanced_diabetes = balance_diabetes(df_diabetes)
+
+# -----------------------
+# Balance Diabetes Dataset with Undersampling
+# -----------------------
+def balance_heart(df):
+    label_encoder = LabelEncoder()
+    df_heart['Sex'] = label_encoder.fit_transform(df_heart['Sex'])
+
+    if 'smoker' in df_heart.columns:
+        df_heart['smoker'] = label_encoder.fit_transform(df_heart['smoker'])
+
+    # --- Separate features and target ---
+    X3 = df_heart.drop('HeartDiseaseorAttack', axis=1)
+    y3 = df_heart['HeartDiseaseorAttack']
+
+    # --- Handle missing values ---
+    # Use mean for numeric columns (you could also use median or mode)
+    imputer3 = SimpleImputer(strategy='mean')
+    X_imputed3 = pd.DataFrame(imputer3.fit_transform(X3), columns=X3.columns)
+
+    # --- Apply SMOTE ---
+    smote = SMOTE(random_state=42)
+    X_smote3, y_smote3 = smote.fit_resample(X_imputed3, y3)
+
+    # --- Combine back into a single balanced DataFrame ---
+    df_heart_smote = pd.concat([X_smote3, y_smote3], axis=1)
+
 
 
 # -----------------------
@@ -142,7 +176,7 @@ st.altair_chart(chart, use_container_width=True)
 
 
 
-
+#Diabetes plot
 # Fit logistic regression for diabetes
 X_diabetes = df_diabetes['age'].values.reshape(-1, 1)
 y_diabetes = df_diabetes['diabetes'].values
@@ -169,5 +203,38 @@ chart_diabetes = alt.Chart(age_prob_diabetes_df).mark_line(point=True).encode(
 ).interactive()
 
 st.altair_chart(chart_diabetes, use_container_width=True)
+
+
+#------------------
+#Heart disease plot
+#------------------
+# Fit logistic regression for stroke
+X_heart = df_heart['age'].values.reshape(-1, 1)
+y_heart = df_heart['stroke'].values
+model_heart = LogisticRegression()
+model_heart.fit(X_heart, y_heart)
+
+# Generate age range and predicted probabilities
+age_range_heart = np.arange(df_heart['age'].min(), df_heart['age'].max())
+prob_heart = model_heart.predict_proba(age_range_heart.reshape(-1,1))[:,1]
+
+# Create DataFrame for Altair
+age_prob_heart_df = pd.DataFrame({
+    'age': age_range_heart,
+    'HeartDiseaseorAttack': prob
+})
+
+# Altair interactive plot
+chart_heart = alt.Chart(age_prob_heart_df).mark_line(point=True).encode(
+    x=alt.X_heart('age', title='Age'),
+    y=alt.Y_heart('HeartDiseaseorAttack', title='Heart Disease or Heart Attack'),
+    tooltip=['age', 'HeartDiseaseorAttack']
+).properties(
+    title='Predicted Probability of Heart Disease or Attack'
+).interactive()
+
+st.altair_chart(chart, use_container_width=True)
+
+
 
 st.write("Now that we can visualize the risk overtime, hop around the app and discover some ways in which we can control our probability.")
