@@ -11,7 +11,7 @@ st.title("Where to get help:")
 
 
 
-st.write("As we've seen by now, smoking status, glucose level, BMI, and hypertension are all controllable factors that increase the risk for these diseases. If you would like more information on how to make positive changes for your health, feel free to visits the sites below:")
+st.write("As we've seen by now, BMI, High Blood Pressure, High Cholesterol, High Blood Glucose levels, and smoking status are all controllable factors that increase the risk for these diseases. If you would like more information on how to make positive changes for your health, feel free to visits the sites below:")
 st.write("Managing BMI: https://www.heart.org/en/healthy-living/healthy-lifestyle/lifes-essential-8/how-to-manage-weight-fact-sheet")
 st.write("Managing High Blood Pressure (hypertension): https://www.mayoclinic.org/diseases-conditions/high-blood-pressure/in-depth/high-blood-pressure/art-20046974")
 st.write("Managing High Cholesterol: https://www.nhs.uk/conditions/high-cholesterol/how-to-lower-your-cholesterol/")
