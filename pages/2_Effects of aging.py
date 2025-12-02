@@ -234,7 +234,7 @@ chart_heart = alt.Chart(age_prob_heart_df).mark_line(point=True).encode(
     title='Predicted Probability of Heart Disease or Heart Attack'
 ).interactive()
 
-st.altair_chart(chart, use_container_width=True)
+st.altair_chart(chart_heart, use_container_width=True)
 
 
 
