@@ -55,6 +55,9 @@ with st.expander("Stroke"):
 with st.expander("Diabetes"):
     st.write("A1c, Blood Glucose (Blood Sugar), Age, and BMI")
 
+with st.expander("Heart Disease"):
+    st.write("Age, High Blood Pressure, BMI, and High Cholesterol")
+
 
 # -----------------------
 # Balance Stroke Dataset with SMOTE

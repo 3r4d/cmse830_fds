@@ -9,14 +9,6 @@ from sklearn.metrics import brier_score_loss
 from sklearn.impute import SimpleImputer
 from imblearn.over_sampling import SMOTE
 from sklearn.utils import resample
-
-
-# ------------------------------------------------------------
-# Assume you already have the following loaded in memory:
-# df_stroke_smote  -> balanced stroke dataset
-# df_balanced_diabetes -> balanced diabetes dataset
-# ------------------------------------------------------------
-
 # Original Stroke dataset
 stroke_path = "data/healthcare-dataset-stroke-data.csv"
 df_stroke = pd.read_csv(stroke_path)
@@ -155,7 +147,7 @@ if model_choice == "Stroke":
         'smoking_status': [0 if smoking_status == "never smoked"
                            else 1 if smoking_status == "formerly smoked"
                            else 2 if smoking_status == "smokes"
-                           else 3]
+                           else pass]
     })
 
     input_scaled = scaler_s.transform(input_data)
