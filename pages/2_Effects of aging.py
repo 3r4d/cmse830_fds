@@ -84,7 +84,7 @@ def balance_diabetes(df):
 df_balanced_diabetes = balance_diabetes(df_diabetes)
 
 # -----------------------
-# Balance Diabetes Dataset with Undersampling
+# Balance Heart Dataset with Undersampling
 # -----------------------
 def balance_heart(df):
     label_encoder = LabelEncoder()

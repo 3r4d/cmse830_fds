@@ -20,7 +20,7 @@ st.title("Stroke & Diabetes Dataset Analysis")
 # Load Datasets
 # -----------------------
 @st.cache_data
-def load_datasets(stroke_path, diabetes_path):
+def load_datasets(stroke_path, diabetes_path, heart_path):
     df_stroke = pd.read_csv(stroke_path)
     df_stroke = df_stroke.drop(columns=['id', 'ever_married', 'work_type', 'Residence_type'])
     df_stroke = df_stroke[df_stroke['gender'] != 'Other']
@@ -30,12 +30,21 @@ def load_datasets(stroke_path, diabetes_path):
                  'bmi', 'smoking_history', 'HbA1c_level', 'diabetes']
     df_diabetes = df_diabetes[new_order]
 
-    return df_stroke, df_diabetes
+    df_heart = pd.read_csv(heart_path)
+    df_heart = df_heart.drop(columns=['PhysActivity', 'Fruits', 'AnyHealthcare', 'NoDocbcCost', 'GenHlth', 'MentHlth', 'PhysHlth',
+                            'DiffWalk', 'Education', 'Income', 'Veggies', 'HvyAlcoholConsump', 'CholCheck'])
+    df_heart_new_order = ['Sex', 'Age', 'HighBP', 'HeartDiseaseorAttack', 'BMI', 'Smoker', 'HighChol', 'Diabetes', 'Stroke']
+    df_heart = df_heart[df_heart_new_order]
+
+
+    return df_stroke, df_diabetes, df_heart
 
 stroke_path = "data/healthcare-dataset-stroke-data.csv"
 diabetes_path = "data/diabetes_prediction_dataset.csv"
+heart_path = "data/heart_disease_health_indicators_BRFSS2015.csv"
 
-df_stroke, df_diabetes = load_datasets(stroke_path, diabetes_path)
+df_stroke, df_diabetes, df_heart = load_datasets(stroke_path, diabetes_path, heart_path)
+
 
 st.write("Now that we know that overlaps exist, lets take a look at what factors influence these diseases the most.")
 st.write("Below are two charts showing the most important factors found in our data that influence the likelihood of having a stroke or developing diabetes.")
@@ -91,6 +100,34 @@ def balance_diabetes(df):
 
 df_balanced_diabetes = balance_diabetes(df_diabetes)
 
+# -----------------------
+# Balance Heart Dataset with Undersampling
+# -----------------------
+def balance_heart(df):
+    label_encoder = LabelEncoder()
+    df_heart['Sex'] = label_encoder.fit_transform(df_heart['Sex'])
+
+    if 'smoker' in df_heart.columns:
+        df_heart['smoker'] = label_encoder.fit_transform(df_heart['smoker'])
+
+    # --- Separate features and target ---
+    X3 = df_heart.drop('HeartDiseaseorAttack', axis=1)
+    y3 = df_heart['HeartDiseaseorAttack']
+
+    # --- Handle missing values ---
+    # Use mean for numeric columns (you could also use median or mode)
+    imputer3 = SimpleImputer(strategy='mean')
+    X_imputed3 = pd.DataFrame(imputer3.fit_transform(X3), columns=X3.columns)
+
+    # --- Apply SMOTE ---
+    smote = SMOTE(random_state=42)
+    X_smote3, y_smote3 = smote.fit_resample(X_imputed3, y3)
+
+    # --- Combine back into a single balanced DataFrame ---
+    df_bal = pd.concat([X_smote3, y_smote3], axis=1)
+    return df_bal
+
+df_heart_smote = balance_heart(df_heart)
 
 # -----------------------
 # Cached function for correlation heatmaps
@@ -128,9 +165,8 @@ def plot_feature_importance(feat_imp_df, title="Feature Importance", palette="ma
 
 # -----------------------
 # Stroke Random Forest
-#help from chatGPT for random forest
 # -----------------------
-st.header("Risk Factors for Stroke and Diabetes")
+st.header("Risk Factors for Stroke, Diabetes, and Heart disease")
 
 st.subheader("Stroke Dataset")
 X_stroke = df_stroke_smote.drop('stroke', axis=1)
@@ -140,7 +176,6 @@ plot_feature_importance(feat_imp_stroke, "Stroke Dataset - Feature Importance (R
 
 # -----------------------
 # Diabetes Random Forest
-#help from chatGPT for random forest
 # -----------------------
 st.subheader("Diabetes Dataset")
 X_diabetes = df_balanced_diabetes.drop('diabetes', axis=1)
@@ -151,3 +186,14 @@ for col in ['gender','smoking_history']:
 
 feat_imp_diabetes, rf_diabetes = train_rf_feature_importance(X_diabetes, y_diabetes)
 plot_feature_importance(feat_imp_diabetes, "Diabetes Dataset - Feature Importance (Random Forest)")
+
+
+
+# -----------------------
+# Heart Random Forest
+# -----------------------
+st.subheader("Heart Dataset")
+X_heart = df_heart_smote.drop('heart', axis=1)
+y_heart = df_heart_smote['heart']
+feat_imp_heart, rf_heart = train_rf_feature_importance(X_heart, y_heart)
+plot_feature_importance(feat_imp_heart, "Heart Dataset - Feature Importance (Random Forest)", palette='viridis')
