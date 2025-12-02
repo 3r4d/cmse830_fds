@@ -124,7 +124,7 @@ st.title("🧠 Health Risk Predictor (Calibrated Model)")
 st.write("Interactively explore how age, BMI, and health factors influence your probability of **stroke** or **diabetes**.")
 
 # Choose model type
-model_choice = st.radio("Select which condition to predict:", ["Stroke", "Diabetes", "Heart disease"])
+model_choice = st.radio("Select which condition to predict:", ["Stroke", "Diabetes", "Heart Disease"])
 
 # Common sliders
 age = st.slider("Age", 0, 100, 45)
