@@ -161,11 +161,11 @@ if model_choice == "Stroke":
 
     st.metric("Predicted Stroke Probability", f"{prob_realistic*100:.2f}%")
 
+# ... lines 170-200 (if model_choice == "Diabetes" block) ...
+
 if model_choice == "Diabetes":
-    glucose = st.slider("Blood Glucose Level", 50.0, 300.0, 100.0)
-    hba1c = st.slider("HbA1c Level", 3.0, 14.0, 5.5)
-    smoking = st.selectbox("Smoking History", ["never", "former", "current", "no info"])
-    heart_disease = st.checkbox("Heart Disease", value=False)
+    # ... (Diabetes prediction logic as you have it - CORRECT) ...
+    # This block correctly defines 'HbA1c_level' in input_data
 
     # Prepare input
     input_data = pd.DataFrame({
@@ -177,11 +177,43 @@ if model_choice == "Diabetes":
         'bmi': [bmi],
         'smoking_history': [0 if smoking == "never"
                             else 1 if smoking == "former"
-                            else 2 if smoking == "current"
-                            else 3],
+        else 2 if smoking == "current"
+        else 3],
+        'HbA1c_level': [hba1c]  # <-- This line is PRESENT
+    })
+
+    input_scaled = scaler_d.transform(input_data)
+    # ... rest of Diabetes prediction ...
+
+# Note: The 'else' block below is executed if model_choice is NOT "Stroke" AND NOT "Diabetes",
+# which means it runs when model_choice == "Heart Disease".
+
+else:  # This is the block for model_choice == "Heart Disease"
+    st.subheader("⚠️ Heart Disease Prediction Not Available")
+    st.info("The prediction will use the **Diabetes Model** since a dedicated Heart Disease model was not trained.")
+
+    # Re-add necessary inputs that were missing in the original 'else' block
+    glucose = st.slider("Blood Glucose Level", 50.0, 300.0, 100.0)
+    hba1c = st.slider("HbA1c Level", 3.0, 14.0, 5.5)  # ADDED
+    smoking = st.selectbox("Smoking History", ["never", "former", "current", "no info"])
+    heart_disease = st.checkbox("Heart Disease", value=False)  # ADDED
+
+    # Prepare input - MUST match features used to train scaler_d
+    input_data = pd.DataFrame({
+        'gender': [1],
+        'age': [age],
+        'hypertension': [int(hypertension)],
+        'heart_disease': [int(heart_disease)],
+        'blood_glucose_level': [glucose],
+        'bmi': [bmi],
+        'smoking_history': [0 if smoking == "never"
+                            else 1 if smoking == "former"
+        else 2 if smoking == "current"
+        else 3],
         'HbA1c_level': [hba1c]
     })
 
+    # The failing line from the traceback, now with correct input_data
     input_scaled = scaler_d.transform(input_data)
     prob = diab_model.predict_proba(input_scaled)[:, 1][0]
 
@@ -190,31 +222,4 @@ if model_choice == "Diabetes":
     scaling_factor = real_prevalence / np.mean(y_prob_cal_d)
     prob_realistic = min(prob * scaling_factor, 1.0)
 
-    st.metric("Predicted Diabetes Probability", f"{prob_realistic*100:.2f}%")
-
-else:
-    smoking = st.selectbox("Smoking History", ["never", "former", "current"])
-
-    # Prepare input
-    input_data = pd.DataFrame({
-        'gender': [1],
-        'age': [age],
-        'hypertension': [int(hypertension)],
-        'heart_disease': [int(heart_disease)],
-        'blood_glucose_level': [glucose],
-        'bmi': [bmi],
-        'smoking_history': [0 if smoking == "never"
-                            else 1 if smoking == "former"
-                            else 2 if smoking == "current"
-                            else 3],
-    })
-
-    input_scaled = scaler_d.transform(input_data)
-    prob = diab_model.predict_proba(input_scaled)[:, 1][0]
-
-    # Re-anchor to real-world prevalence (~10%)
-    real_prevalence = 0.10
-    scaling_factor = real_prevalence / np.mean(y_prob_cal_d)
-    prob_realistic = min(prob * scaling_factor, 1.0)
-
-    st.metric("Predicted Diabetes Probability", f"{prob_realistic*100:.2f}%")
+    st.metric("Predicted Diabetes Probability (using Heart Disease inputs)", f"{prob_realistic * 100:.2f}%")
