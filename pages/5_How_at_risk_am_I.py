@@ -134,7 +134,7 @@ heart_disease = st.checkbox("Heart Disease", value=False)
 
 if model_choice == "Stroke":
     glucose = st.slider("Average Glucose Level", 50.0, 300.0, 100.0)
-    smoking_status = st.selectbox("Smoking Status", ["never smoked", "formerly smoked", "smokes", "Unknown"])
+    smoking_status = st.selectbox("Smoking Status", ["never smoked", "formerly smoked", "smokes"])
 
     # Prepare input
     input_data = pd.DataFrame({
@@ -146,8 +146,7 @@ if model_choice == "Stroke":
         'bmi': [bmi],
         'smoking_status': [0 if smoking_status == "never smoked"
                            else 1 if smoking_status == "formerly smoked"
-                           else 2 if smoking_status == "smokes"
-                           else pass]
+                           else 2 if smoking_status == "smokes"]
     })
 
     input_scaled = scaler_s.transform(input_data)
