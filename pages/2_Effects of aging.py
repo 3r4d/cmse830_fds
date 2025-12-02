@@ -210,25 +210,25 @@ st.altair_chart(chart_diabetes, use_container_width=True)
 #------------------
 # Fit logistic regression for stroke
 X_heart = df_heart['Age'].values.reshape(-1, 1)
-y_heart = df_heart['stroke'].values
+y_heart = df_heart['HeartDiseaseorAttack'].values
 model_heart = LogisticRegression()
 model_heart.fit(X_heart, y_heart)
 
 # Generate age range and predicted probabilities
-age_range_heart = np.arange(df_heart['age'].min(), df_heart['age'].max())
+age_range_heart = np.arange(df_heart['Age'].min(), df_heart['Age'].max())
 prob_heart = model_heart.predict_proba(age_range_heart.reshape(-1,1))[:,1]
 
 # Create DataFrame for Altair
 age_prob_heart_df = pd.DataFrame({
-    'age': age_range_heart,
+    'Age': age_range_heart,
     'HeartDiseaseorAttack': prob
 })
 
 # Altair interactive plot
 chart_heart = alt.Chart(age_prob_heart_df).mark_line(point=True).encode(
-    x=alt.X_heart('age', title='Age'),
+    x=alt.X_heart('Age', title='Age'),
     y=alt.Y_heart('HeartDiseaseorAttack', title='Heart Disease or Heart Attack'),
-    tooltip=['age', 'HeartDiseaseorAttack']
+    tooltip=['Age', 'HeartDiseaseorAttack']
 ).properties(
     title='Predicted Probability of Heart Disease or Attack'
 ).interactive()
