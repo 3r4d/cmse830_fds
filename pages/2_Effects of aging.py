@@ -227,8 +227,8 @@ age_prob_heart_df = pd.DataFrame({
 
 # Altair interactive plot
 chart_heart = alt.Chart(age_prob_heart_df).mark_line(point=True).encode(
-    x=alt.X_heart('Age', title='Age'),
-    y=alt.Y_heart('HeartDiseaseorAttack', title='Heart Disease or Heart Attack'),
+    x=alt.X('Age', title='Age'),
+    y=alt.Y('HeartDiseaseorAttack', title='Heart Disease or Heart Attack'),
     tooltip=['Age', 'HeartDiseaseorAttack']
 ).properties(
     title='Predicted Probability of Heart Disease or Heart Attack'
