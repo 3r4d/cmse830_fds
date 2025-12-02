@@ -146,7 +146,8 @@ if model_choice == "Stroke":
         'bmi': [bmi],
         'smoking_status': [0 if smoking_status == "never smoked"
                            else 1 if smoking_status == "formerly smoked"
-                           else 2 if smoking_status == "smokes"]
+                           else 2 if smoking_status == "smokes"
+                           else 3]
     })
 
     input_scaled = scaler_s.transform(input_data)
