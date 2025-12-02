@@ -209,7 +209,7 @@ st.altair_chart(chart_diabetes, use_container_width=True)
 #Heart disease plot
 #------------------
 # Fit logistic regression for stroke
-X_heart = df_heart['age'].values.reshape(-1, 1)
+X_heart = df_heart['Age'].values.reshape(-1, 1)
 y_heart = df_heart['stroke'].values
 model_heart = LogisticRegression()
 model_heart.fit(X_heart, y_heart)
