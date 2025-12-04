@@ -252,7 +252,7 @@ if model_choice == "Stroke":
 
 elif model_choice == "Diabetes":
     # 1. SLIDER INPUTS (Numerical/Continuous data)
-    hba1c = st.slider("HbA1c Level", 3.0, 10.0, 5.7)
+    hba1c = st.slider("HbA1c Level (if you are not sure 5.7-6.4 is an average normal range", 3.0, 10.0, 5.7)
     glucose = st.slider("Blood Glucose Level (if you are not sure 79-99 is an average normal range)", 50.0, 300.0, 100.0)
 
     # 2. CHECKBOX / HISTORY INPUTS (Binary/Categorical data - grouped at bottom)
