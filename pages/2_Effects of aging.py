@@ -62,9 +62,6 @@ def balance_stroke(df):
 df_stroke_smote = balance_stroke(df_stroke.copy()) # Use a copy to prevent SettingWithCopyWarning
 
 
-
-
-
 # -----------------------
 # Balance Diabetes Dataset with Undersampling
 # -----------------------

@@ -113,6 +113,7 @@ def balance_heart(df):
     df_bal = pd.concat([X_smote3, y_smote3], axis=1)
     return df_bal
 
+df_balanced_heart = balance_heart(df_heart.copy())
 
 #==================================================
 #Class imbalance drop down
