@@ -270,14 +270,9 @@ elif model_choice == "Diabetes":
 # which means it runs when model_choice == "Heart Disease".
 
 else:  # This is the block for model_choice == "Heart Disease"
-    st.subheader("⚠️ Heart Disease Prediction Not Available")
-    st.info("The prediction will use the **Diabetes Model** since a dedicated Heart Disease model was not trained.")
 
     # Re-add necessary inputs that were missing in the original 'else' block
-    glucose = st.slider("Blood Glucose Level", 50.0, 300.0, 100.0)
-    hba1c = st.slider("HbA1c Level", 3.0, 14.0, 5.5)  # ADDED
-    smoking = st.selectbox("Smoking History", ["never", "former", "current"])
-    heart_disease = st.checkbox("Heart Disease", value=False)  # ADDED
+
 
     # Prepare input - MUST match features used to train scaler_d
     input_data = pd.DataFrame({
@@ -295,12 +290,12 @@ else:  # This is the block for model_choice == "Heart Disease"
     })
 
     # The failing line from the traceback, now with correct input_data
-    input_scaled = scaler_d.transform(input_data)
-    prob = diab_model.predict_proba(input_scaled)[:, 1][0]
+    input_scaled_h = scaler_h.transform(input_data)
+    prob_h = heart_model.predict_proba(input_scaled)[:, 1][0]
 
     # Re-anchor to real-world prevalence (~10%)
-    real_prevalence = 0.10
-    scaling_factor = real_prevalence / np.mean(y_prob_cal_d)
-    prob_realistic = min(prob * scaling_factor, 1.0)
+    real_prevalence_h = 0.10
+    scaling_factor_h = real_prevalence_h / np.mean(y_prob_cal_h)
+    prob_realistic_h = min(prob_h * scaling_factor_h, 1.0)
 
-    st.metric("Predicted Diabetes Probability (using Heart Disease inputs)", f"{prob_realistic * 100:.2f}%")
+    st.metric("Predicted Heart Disease", f"{prob_realistic_h * 100:.2f}%")
