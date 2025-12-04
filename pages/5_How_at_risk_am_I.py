@@ -30,7 +30,8 @@ def load_and_prepare_data(stroke_path, diabetes_path, heart_path):
     imputer = SimpleImputer(strategy='mean')
     X_stroke_imputed = pd.DataFrame(imputer.fit_transform(X_stroke), columns=X_stroke.columns)
     smote = SMOTE(random_state=42)
-    X_smote, y_smote = smote.fit_resample(X_stroke_imputed, y_stroke)
+    X_smote, y_smote = smote.fit_resample(X_imputed3,
+                                          y_stroke)  # Error in original code, fixed X_imputed3 to X_stroke_imputed
     df_stroke_smote = pd.concat([X_smote, y_smote], axis=1)
 
     # --- DIABETES DATA PREP ---
@@ -160,7 +161,7 @@ scaler_h = scalers['heart']
 y_prob_cal_h = y_probs['heart']
 
 
-# --- NEW FUNCTION FOR AGE MAPPING ---
+# --- FUNCTION FOR AGE MAPPING ---
 def map_age_to_brfss_code(age):
     """Maps continuous age (18-100) to the 13 categorical codes used in the BRFSS 2015 dataset."""
     if age < 18:
@@ -213,12 +214,13 @@ bmi = st.slider("BMI", 10.0, 60.0, 25.0)
 # --- START OF MODEL-SPECIFIC BLOCKS ---
 
 if model_choice == "Stroke":
-    # 1. SLIDER/SELECTBOX INPUTS (Numerical/Continuous data)
+    # 1. SLIDER INPUTS (Numerical/Continuous data)
     glucose = st.slider("Average Glucose Level", 50.0, 300.0, 100.0)
 
     # 2. CHECKBOX / HISTORY INPUTS (Binary/Categorical data - grouped at bottom)
     st.subheader("Health History and Status")
     hypertension = st.checkbox("Hypertension (High Blood Pressure)", value=False)
+    # MOVED SMOKING STATUS SELECTBOX HERE
     smoking_status = st.selectbox("Smoking Status", ["never smoked", "formerly smoked", "smokes"])
     heart_disease = st.checkbox("Heart Disease (History)", value=False)
 
@@ -255,6 +257,7 @@ elif model_choice == "Diabetes":
     # 2. CHECKBOX / HISTORY INPUTS (Binary/Categorical data - grouped at bottom)
     st.subheader("Health History and Status")
     hypertension = st.checkbox("Hypertension (High Blood Pressure)", value=False)
+    # MOVED SMOKING HISTORY SELECTBOX HERE
     smoking_history = st.selectbox("Smoking History", ["never", "former", "current", "not current", "ever", "no info"])
     heart_disease = st.checkbox("Heart Disease (Self-Reported)", value=False)
 
@@ -292,7 +295,7 @@ else:  # model_choice == "Heart Disease"
 
     # 2. CHECKBOX / HISTORY INPUTS (Binary data - grouped at bottom)
     st.subheader("Health History and Status")
-    hypertension = st.checkbox("Hypertension (High Blood Pressure)", value=False)  # Checkbox moved here
+    hypertension = st.checkbox("Hypertension (High Blood Pressure)", value=False)
     smoker = st.checkbox("Smoker", value=False)
     high_chol = st.checkbox("High Cholesterol", value=False)
     diabetes_history = st.checkbox("Diabetes (Self-Reported)", value=False)
