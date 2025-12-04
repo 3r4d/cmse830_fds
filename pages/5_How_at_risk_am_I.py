@@ -261,7 +261,7 @@ elif model_choice == "Diabetes":
     hypertension = st.checkbox("Hypertension (High Blood Pressure)", value=False)
     heart_disease = st.checkbox("Heart Disease (Self-Reported)", value=False)
     # Selectbox last
-    smoking_history = st.selectbox("Smoking History", ["never", "former", "current", "not current", "ever", "no info"])
+    smoking_history = st.selectbox("Smoking History", ["never", "former", "current"])
 
     # Input encoding consistent with Diabetes model training
     input_data = pd.DataFrame({
