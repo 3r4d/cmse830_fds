@@ -144,7 +144,7 @@ with st.expander("Class imbalance"):
 
     st.subheader("Heart Disease Dataset")
     st.dataframe(df_heart.head())
-    st.write(df_balanced_heart['diabetes'].value_counts())
+    st.write(df_heart['diabetes'].value_counts())
 
 
 # -----------------------
