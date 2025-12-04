@@ -10,6 +10,10 @@ from sklearn.impute import SimpleImputer
 from imblearn.over_sampling import SMOTE
 from sklearn.utils import resample
 
+# -----------------------
+# Initial Data Loading and Setup (Run on every launch)
+# -----------------------
+
 # Original Stroke dataset
 stroke_path = "data/healthcare-dataset-stroke-data.csv"
 df_stroke = pd.read_csv(stroke_path)
@@ -29,7 +33,9 @@ df_diabetes = df_diabetes[new_order]
 # Encode categorical variables
 label_encoder = LabelEncoder()
 df_stroke['gender'] = label_encoder.fit_transform(df_stroke['gender'])
+# Handle missing smoking status (if any) or encode it
 if 'smoking_status' in df_stroke.columns:
+    df_stroke['smoking_status'] = df_stroke['smoking_status'].fillna('Unknown')
     df_stroke['smoking_status'] = label_encoder.fit_transform(df_stroke['smoking_status'])
 
 # Separate features and target
@@ -46,10 +52,8 @@ X_smote, y_smote = smote.fit_resample(X_stroke_imputed, y_stroke)
 df_stroke_smote = pd.concat([X_smote, y_smote], axis=1)
 
 # -----------------------
-# Balance Diabetes Dataset with Undersampling - FIX APPLIED
+# Balance Diabetes Dataset with Undersampling (FIXED)
 # -----------------------
-
-# Encode categorical columns in df_diabetes BEFORE balancing
 le = LabelEncoder()
 df_diabetes['gender'] = le.fit_transform(df_diabetes['gender'])
 df_diabetes['smoking_history'] = le.fit_transform(df_diabetes['smoking_history'])
@@ -65,33 +69,28 @@ df_majority_downsampled = resample(df_majority,
 df_balanced_diabetes = pd.concat([df_majority_downsampled, df_minority])
 df_balanced_diabetes = df_balanced_diabetes.sample(frac=1, random_state=42).reset_index(drop=True)
 
-# The loop below is now mostly redundant for the diabetes dataset due to the fix above,
-# but kept for potential future-proofing on other dataframes.
-for df in [df_stroke_smote, df_balanced_diabetes]:
-    for col in df.select_dtypes(include=['object']).columns:
-        le = LabelEncoder()
-        df[col] = le.fit_transform(df[col])
 
-
+# -----------------------
+# Load and Balance Heart Disease Dataset (NEW/HARDENED)
+# -----------------------
 @st.cache_data
 def load_datasets(stroke_path, diabetes_path, heart_path):
-    # Stroke loading (kept as is)
+    # ... (stroke and diabetes loading kept for completeness, though redefined globally)
     df_stroke = pd.read_csv(stroke_path)
     df_stroke = df_stroke.drop(columns=['id', 'ever_married', 'work_type', 'Residence_type'])
     df_stroke = df_stroke[df_stroke['gender'] != 'Other']
 
-    # Diabetes loading (kept as is)
     df_diabetes = pd.read_csv(diabetes_path)
     new_order = ['gender', 'age', 'hypertension', 'heart_disease', 'blood_glucose_level',
                  'bmi', 'smoking_history', 'HbA1c_level', 'diabetes']
     df_diabetes = df_diabetes[new_order]
 
-    # Heart loading (kept as is)
     df_heart = pd.read_csv(heart_path)
+    # Drop features not used in the model
     df_heart = df_heart.drop(
         columns=['PhysActivity', 'Fruits', 'AnyHealthcare', 'NoDocbcCost', 'GenHlth', 'MentHlth', 'PhysHlth',
                  'DiffWalk', 'Education', 'Income', 'Veggies', 'HvyAlcoholConsump', 'CholCheck'])
-    # Correct feature names in df_heart_new_order to match the dataframe loaded
+
     df_heart_new_order = ['Sex', 'Age', 'HighBP', 'HeartDiseaseorAttack', 'BMI', 'Smoker', 'HighChol', 'Diabetes',
                           'Stroke']
     df_heart = df_heart[df_heart_new_order]
@@ -103,21 +102,26 @@ stroke_path = "data/healthcare-dataset-stroke-data.csv"
 diabetes_path = "data/diabetes_prediction_dataset.csv"
 heart_path = "data/heart_disease_health_indicators_BRFSS2015.csv"
 
-df_stroke, df_diabetes_original, df_heart = load_datasets(stroke_path, diabetes_path,
-                                                          heart_path)  # Changed to df_diabetes_original to prevent name collision
+# Load dataframes again using the cached function for consistency
+df_stroke_cached, df_diabetes_original, df_heart = load_datasets(stroke_path, diabetes_path, heart_path)
 
 
 def balance_heart(df):
-    # The 'Sex' column is encoded. In this dataset, 1 is female, 0 is male.
+    df_copy = df.copy()
     le = LabelEncoder()
-    df['Sex'] = le.fit_transform(df['Sex'])  # 0: Female, 1: Male
-    # The 'Smoker' column is already 0 or 1, no need to encode.
+
+    # 1. Encode Sex
+    df_copy['Sex'] = le.fit_transform(df_copy['Sex'])
+
+    # 2. Ensure all other features are explicitly numeric (critical for StandardScaler)
+    for col in ['HighBP', 'Smoker', 'HighChol', 'Diabetes', 'Stroke', 'Age', 'BMI']:
+        df_copy[col] = pd.to_numeric(df_copy[col], errors='coerce')  # 'coerce' converts non-numeric values to NaN
 
     # --- Separate features and target ---
-    X3 = df.drop('HeartDiseaseorAttack', axis=1)
-    y3 = df['HeartDiseaseorAttack']
+    X3 = df_copy.drop('HeartDiseaseorAttack', axis=1)
+    y3 = df_copy['HeartDiseaseorAttack']
 
-    # --- Handle missing values ---
+    # --- Handle missing values (for any NaNs introduced by 'coerce' or original data) ---
     imputer3 = SimpleImputer(strategy='mean')
     X_imputed3 = pd.DataFrame(imputer3.fit_transform(X3), columns=X3.columns)
 
@@ -130,11 +134,10 @@ def balance_heart(df):
     return df_bal
 
 
-# Balance Heart Disease Dataset
 df_balanced_heart = balance_heart(df_heart)
 
 # ------------------------------------------------------------
-# Train Calibrated Stroke Model (Kept as is - Assumed correct)
+# Train Calibrated Stroke Model
 # ------------------------------------------------------------
 X_stroke = df_stroke_smote.drop('stroke', axis=1)
 y_stroke = df_stroke_smote['stroke']
@@ -156,7 +159,7 @@ print("Stroke Brier score (uncalibrated):", brier_score_loss(y_test_s, y_prob_un
 print("Stroke Brier score (calibrated):", brier_score_loss(y_test_s, y_prob_cal_s))
 
 # ------------------------------------------------------------
-# Train Calibrated Diabetes Model (FIX APPLIED)
+# Train Calibrated Diabetes Model
 # ------------------------------------------------------------
 X_diab = df_balanced_diabetes.drop('diabetes', axis=1)
 y_diab = df_balanced_diabetes['diabetes']
@@ -178,7 +181,7 @@ print("Diabetes Brier score (uncalibrated):", brier_score_loss(y_test_d, y_prob_
 print("Diabetes Brier score (calibrated):", brier_score_loss(y_test_d, y_prob_cal_d))
 
 # ------------------------------------------------------------
-# Train Calibrated Heart Disease Model (NEW SECTION)
+# Train Calibrated Heart Disease Model (FIXED)
 # ------------------------------------------------------------
 X_heart = df_balanced_heart.drop('HeartDiseaseorAttack', axis=1)
 y_heart = df_balanced_heart['HeartDiseaseorAttack']
@@ -219,26 +222,9 @@ if model_choice == "Stroke":
     smoking_status = st.selectbox("Smoking Status", ["never smoked", "formerly smoked", "smokes"])
     heart_disease = st.checkbox("Heart Disease", value=False)
 
-    # Prepare input
-    # Assuming female=1 for gender in the stroke model's encoded data
-    # smoking_status encoding: never smoked=2, formerly smoked=1, smokes=3
-    # Note: The original code had a slight issue with smoking_status encoding comparison, fixed below.
-    # The actual encoding depends on fit_transform on the original categories:
-    # 'formerly smoked': 0, 'never smoked': 1, 'smokes': 2 (based on original dataset's sorted unique values)
-    # Let's use the assumed values from the original code for now, but ensure alignment:
-    smoking_val = 0
-    if smoking_status == "formerly smoked":
-        smoking_val = 1
-    elif smoking_status == "smokes":
-        smoking_val = 2
-
-    # The original code's logic for smoking status encoding was likely:
-    # 'never smoked'=0, 'formerly smoked'=1, 'currently smokes'=2, 'Unknown'=3
-    # The fix aligns with the provided UI options and the model's expected features.
-
-    # Aligning with original provided logic:
+    # Input encoding consistent with Stroke model training
     input_data = pd.DataFrame({
-        'gender': [1],  # assume female=1 for now
+        'gender': [1],
         'age': [age],
         'hypertension': [int(hypertension)],
         'heart_disease': [int(heart_disease)],
@@ -267,10 +253,7 @@ elif model_choice == "Diabetes":
     smoking_history = st.selectbox("Smoking History", ["never", "former", "current", "not current", "ever", "no info"])
     heart_disease = st.checkbox("Heart Disease (Self-Reported)", value=False)  # Feature is in diabetes dataset
 
-    # Prepare input - MUST match df_balanced_diabetes features
-    # Encoding for gender in df_diabetes: Male=1, Female=0
-    # Encoding for smoking_history in df_diabetes: varies, using dummy values for now based on original model intent
-    # Note: The original code's 'smoking' variable was undefined, changed to 'smoking_history'
+    # Input encoding consistent with Diabetes model training
     input_data = pd.DataFrame({
         'gender': [0],  # Assuming Female=0 for diabetes model
         'age': [age],
@@ -297,30 +280,29 @@ elif model_choice == "Diabetes":
 
     st.metric("Predicted Diabetes Probability", f"{prob_realistic * 100:.2f}%")
 
-else:  # This is the block for model_choice == "Heart Disease"
+else:  # model_choice == "Heart Disease" (FIXED)
+    # Heart Disease-specific inputs
+    sex = st.selectbox("Sex", ["Female", "Male"])
+    smoker = st.checkbox("Smoker", value=False)
+    high_chol = st.checkbox("High Cholesterol", value=False)
+    diabetes_history = st.checkbox("Diabetes (Self-Reported)", value=False)
+    stroke_history = st.checkbox("History of Stroke", value=False)
 
-    # Heart Disease-specific inputs (based on df_heart features: Sex, Age, HighBP, BMI, Smoker, HighChol, Diabetes, Stroke)
-    sex = st.selectbox("Sex", ["Female", "Male"]) # Sex is the feature name
-    smoker = st.checkbox("Smoker", value=False) # Smoker is the feature name
-    high_chol = st.checkbox("High Cholesterol", value=False) # HighChol is the feature name
-    diabetes = st.checkbox("Diabetes (Self-Reported)", value=False) # Diabetes is the feature name
-    stroke_history = st.checkbox("History of Stroke", value=False) # Stroke is the feature name
-
-    # Prepare input - MUST match df_balanced_heart features
+    # Prepare input - MUST match df_balanced_heart features (Sex, Age, HighBP, BMI, Smoker, HighChol, Diabetes, Stroke)
     # Encoding for Sex: Female=0, Male=1
     input_data = pd.DataFrame({
         'Sex': [0 if sex == "Female" else 1],
         'Age': [age],
-        'HighBP': [int(hypertension)], # Using hypertension for HighBP
+        'HighBP': [int(hypertension)],  # Using hypertension for HighBP
         'BMI': [bmi],
         'Smoker': [int(smoker)],
         'HighChol': [int(high_chol)],
-        'Diabetes': [int(diabetes)],
+        'Diabetes': [int(diabetes_history)],  # Using new diabetes_history variable
         'Stroke': [int(stroke_history)]
     })
 
     input_scaled_h = scaler_h.transform(input_data)
-    prob_h = heart_model.predict_proba(input_scaled_h)[:, 1][0] # Used scaler_h and input_scaled_h
+    prob_h = heart_model.predict_proba(input_scaled_h)[:, 1][0]
 
     # Re-anchor to real-world prevalence (~10%)
     real_prevalence_h = 0.10
