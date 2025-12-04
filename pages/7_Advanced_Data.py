@@ -127,8 +127,9 @@ with st.expander("Class imbalance"):
     st.write("But if we take a look at the number of patients with stroke or diabetes vs those with, there is a big descrepency. See below:")
     st.write("The number of people with stroke is: " + str(sum(df_stroke1['stroke'])) + ". Compare that to the total number of people: " + str(len(df_stroke1['stroke'])) + ".")
     st.write("This difference is called a bias. In order to obtain accurate data we need to make the total number of positives the same as the negatives. The 'SMOTE' technique was applied in order to eliminate the gap in the positive and negative groups.")
-    st.write("Balanced Stroke Dataset:")
+    st.write("Initial Stroke Dataset:")
     st.write(df_stroke['stroke'].value_counts())
+    st.write("Balanced Stroke Dataset (SMOTE):")
     st.write(df_stroke_smote['stroke'].value_counts())
 
 
@@ -141,13 +142,16 @@ with st.expander("Class imbalance"):
     st.write("We run into the same issue here as the stroke dataset however. The imbalance of those who have diabetes is significantly less than those who do.")
     st.write("The number of people with diabetes is: " + str(sum(df_diabetes['diabetes'])) + ". Compare that to the total number of people: " + str(len(df_diabetes['diabetes'])) + ".")
     st.write("For the diabetes dataset a resampling technique was used. By randomly selecting an equal number of representatives from each category we can define a new dataset based off the original. This helps us obtain equal representation from each group")
-    st.write("Balanced Diabetes Dataset shape:")
+    st.write("Initial Diabetes Dataset:")
     st.write(df_diabetes['diabetes'].value_counts())
+    st.write("Balanced Diabetes Dataset (Undersampling):")
     st.write(df_balanced_diabetes['diabetes'].value_counts())
 
     st.subheader("Heart Disease Dataset")
     st.dataframe(df_heart.head())
+    st.write("Initial Heart Disease Dataset:")
     st.write(df_heart['HeartDiseaseorAttack'].value_counts())
+    st.write("Balanced Heart disease Dataset (SMOTE):")
     st.write(df_balanced_heartheart['HeartDiseaseorAttack'].value_counts())
 
 
