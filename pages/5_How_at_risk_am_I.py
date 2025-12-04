@@ -60,6 +60,9 @@ def load_and_prepare_data(stroke_path, diabetes_path, heart_path):
     df_copy = df_heart.copy()
     le = LabelEncoder()
     df_copy['Sex'] = le.fit_transform(df_copy['Sex'])
+
+    # NOTE: The Age column in this dataset uses categorical codes (1=18-24, ..., 13=80+).
+    # It must be converted to numeric here for the StandardScaler to work.
     for col in ['HighBP', 'Smoker', 'HighChol', 'Diabetes', 'Stroke', 'Age', 'BMI']:
         df_copy[col] = pd.to_numeric(df_copy[col], errors='coerce')
 
@@ -156,6 +159,40 @@ heart_model = models['heart']
 scaler_h = scalers['heart']
 y_prob_cal_h = y_probs['heart']
 
+
+# --- NEW FUNCTION FOR AGE MAPPING ---
+def map_age_to_brfss_code(age):
+    """Maps continuous age (18-100) to the 13 categorical codes used in the BRFSS 2015 dataset."""
+    if age < 18:
+        return 1  # Technically outside range, but safe default
+    elif age <= 24:
+        return 1
+    elif age <= 29:
+        return 2
+    elif age <= 34:
+        return 3
+    elif age <= 39:
+        return 4
+    elif age <= 44:
+        return 5
+    elif age <= 49:
+        return 6
+    elif age <= 54:
+        return 7
+    elif age <= 59:
+        return 8
+    elif age <= 64:
+        return 9
+    elif age <= 69:
+        return 10
+    elif age <= 74:
+        return 11
+    elif age <= 79:
+        return 12
+    else:  # age >= 80
+        return 13
+
+
 # ------------------------------------------------------------
 # Streamlit UI
 # ------------------------------------------------------------
@@ -167,8 +204,6 @@ st.write(
 model_choice = st.radio("Select which condition to predict:", ["Stroke", "Diabetes", "Heart Disease"])
 
 # Common UI inputs
-# NOTE: Heart Disease uses 'Sex', Stroke/Diabetes use 'gender' in their datasets. The encoding is consistent:
-# Female=0, Male=1 for all three.
 sex_choice = st.selectbox("Sex", ["Female", "Male"])
 sex_input_encoded = 0 if sex_choice == "Female" else 1
 
@@ -181,9 +216,9 @@ if model_choice == "Stroke":
     smoking_status = st.selectbox("Smoking Status", ["never smoked", "formerly smoked", "smokes"])
     heart_disease = st.checkbox("Heart Disease", value=False)
 
-    # Input encoding consistent with Stroke model training
+    # Input encoding consistent with Stroke model training (uses continuous age)
     input_data = pd.DataFrame({
-        'gender': [sex_input_encoded],  # UPDATED: Use user's sex choice
+        'gender': [sex_input_encoded],
         'age': [age],
         'hypertension': [int(hypertension)],
         'heart_disease': [int(heart_disease)],
@@ -212,9 +247,9 @@ elif model_choice == "Diabetes":
     smoking_history = st.selectbox("Smoking History", ["never", "former", "current", "not current", "ever", "no info"])
     heart_disease = st.checkbox("Heart Disease (Self-Reported)", value=False)  # Feature is in diabetes dataset
 
-    # Input encoding consistent with Diabetes model training
+    # Input encoding consistent with Diabetes model training (uses continuous age)
     input_data = pd.DataFrame({
-        'gender': [sex_input_encoded],  # UPDATED: Use user's sex choice
+        'gender': [sex_input_encoded],
         'age': [age],
         'hypertension': [int(hypertension)],
         'heart_disease': [int(heart_disease)],
@@ -246,10 +281,13 @@ else:  # model_choice == "Heart Disease"
     diabetes_history = st.checkbox("Diabetes (Self-Reported)", value=False)
     stroke_history = st.checkbox("History of Stroke", value=False)
 
+    # ***CRITICAL FIX: MAP CONTINUOUS AGE TO BRFSS CATEGORICAL CODE***
+    age_code = map_age_to_brfss_code(age)
+
     # Prepare input - MUST match df_balanced_heart features
     input_data = pd.DataFrame({
         'Sex': [sex_input_encoded],
-        'Age': [age],
+        'Age': [age_code],  # Use the MAPPED categorical code
         'HighBP': [int(hypertension)],
         'BMI': [bmi],
         'Smoker': [int(smoker)],
@@ -261,14 +299,8 @@ else:  # model_choice == "Heart Disease"
     input_scaled_h = scaler_h.transform(input_data)
     prob_h = heart_model.predict_proba(input_scaled_h)[:, 1][0]
 
-    # --- ADJUSTED SCALING FOR REALISM ---
-    # The real prevalence is ~10%, but using this as the anchor point limits the maximum
-    # prediction to around 20% (since mean_prob is near 0.5 due to SMOTE).
-    # To allow realistic high risk (e.g., 80%), we increase the "target" prevalence
-    # to a value like 40% for the scaling calculation. This retains the model's
-    # relative risk but allows for higher absolute probabilities.
-    target_prevalence_for_scaling = 0.40  # Increased from 0.10
-
+    # --- ADJUSTED SCALING FOR REALISM (Carried over from last fix) ---
+    target_prevalence_for_scaling = 0.40
     scaling_factor_h = target_prevalence_for_scaling / np.mean(y_prob_cal_h)
 
     prob_realistic_h = min(prob_h * scaling_factor_h, 1.0)
