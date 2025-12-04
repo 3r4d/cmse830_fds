@@ -163,7 +163,7 @@ if model_choice == "Stroke":
 
 # ... lines 170-200 (if model_choice == "Diabetes" block) ...
 
-if model_choice == "Diabetes":
+elif model_choice == "Diabetes":
     # ... (Diabetes prediction logic as you have it - CORRECT) ...
     # This block correctly defines 'HbA1c_level' in input_data
 
