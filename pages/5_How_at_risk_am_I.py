@@ -19,6 +19,7 @@ def load_and_prepare_data(stroke_path, diabetes_path, heart_path):
     df_stroke = df_stroke.drop(columns=['id', 'ever_married', 'work_type', 'Residence_type'])
     df_stroke = df_stroke[df_stroke['gender'] != 'Other']
     label_encoder = LabelEncoder()
+    # Inspection of stroke data: 'Female' is encoded as 0, 'Male' is encoded as 1.
     df_stroke['gender'] = label_encoder.fit_transform(df_stroke['gender'])
     if 'smoking_status' in df_stroke.columns:
         df_stroke['smoking_status'] = df_stroke['smoking_status'].fillna('Unknown')
@@ -38,6 +39,7 @@ def load_and_prepare_data(stroke_path, diabetes_path, heart_path):
                  'bmi', 'smoking_history', 'HbA1c_level', 'diabetes']
     df_diabetes = df_diabetes[new_order]
     le = LabelEncoder()
+    # Inspection of diabetes data: 'Female' is encoded as 0, 'Male' is encoded as 1.
     df_diabetes['gender'] = le.fit_transform(df_diabetes['gender'])
     df_diabetes['smoking_history'] = le.fit_transform(df_diabetes['smoking_history'])
     df_majority = df_diabetes[df_diabetes.diabetes == 0]
@@ -155,11 +157,6 @@ scaler_h = scalers['heart']
 y_prob_cal_h = y_probs['heart']
 
 # ------------------------------------------------------------
-# REMOVED REDUNDANT/DUPLICATE TRAINING BLOCKS FOR DIABETES AND HEART DISEASE
-# These models are already trained and cached by the train_and_calibrate_models function
-# ------------------------------------------------------------
-
-# ------------------------------------------------------------
 # Streamlit UI
 # ------------------------------------------------------------
 st.title("🧠 Health Risk Predictor (Calibrated Model)")
@@ -169,7 +166,12 @@ st.write(
 # Choose model type
 model_choice = st.radio("Select which condition to predict:", ["Stroke", "Diabetes", "Heart Disease"])
 
-# Common sliders
+# Common UI inputs
+# NOTE: Heart Disease uses 'Sex', Stroke/Diabetes use 'gender' in their datasets. The encoding is consistent:
+# Female=0, Male=1 for all three.
+sex_choice = st.selectbox("Sex", ["Female", "Male"])
+sex_input_encoded = 0 if sex_choice == "Female" else 1
+
 age = st.slider("Age", 0, 100, 45)
 bmi = st.slider("BMI", 10.0, 60.0, 25.0)
 hypertension = st.checkbox("Hypertension (High Blood Pressure)", value=False)
@@ -181,7 +183,7 @@ if model_choice == "Stroke":
 
     # Input encoding consistent with Stroke model training
     input_data = pd.DataFrame({
-        'gender': [1],
+        'gender': [sex_input_encoded], # UPDATED: Use user's sex choice
         'age': [age],
         'hypertension': [int(hypertension)],
         'heart_disease': [int(heart_disease)],
@@ -212,7 +214,7 @@ elif model_choice == "Diabetes":
 
     # Input encoding consistent with Diabetes model training
     input_data = pd.DataFrame({
-        'gender': [0],  # Assuming Female=0 for diabetes model
+        'gender': [sex_input_encoded], # UPDATED: Use user's sex choice
         'age': [age],
         'hypertension': [int(hypertension)],
         'heart_disease': [int(heart_disease)],
@@ -239,7 +241,8 @@ elif model_choice == "Diabetes":
 
 else:  # model_choice == "Heart Disease" (FIXED)
     # Heart Disease-specific inputs
-    sex = st.selectbox("Sex", ["Female", "Male"])
+    # Note: The Heart Disease block already uses the 'sex_choice' variable (Sex=0/1) but re-defines it via st.selectbox
+    # and then encodes it again. We will remove the redundant selectbox and rely on the common 'sex_choice' input.
     smoker = st.checkbox("Smoker", value=False)
     high_chol = st.checkbox("High Cholesterol", value=False)
     diabetes_history = st.checkbox("Diabetes (Self-Reported)", value=False)
@@ -248,7 +251,7 @@ else:  # model_choice == "Heart Disease" (FIXED)
     # Prepare input - MUST match df_balanced_heart features (Sex, Age, HighBP, BMI, Smoker, HighChol, Diabetes, Stroke)
     # Encoding for Sex: Female=0, Male=1
     input_data = pd.DataFrame({
-        'Sex': [0 if sex == "Female" else 1],
+        'Sex': [sex_input_encoded], # UPDATED: Use user's sex choice from common input
         'Age': [age],
         'HighBP': [int(hypertension)],  # Using hypertension for HighBP
         'BMI': [bmi],
