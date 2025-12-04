@@ -107,7 +107,8 @@ def balance_heart(df):
     X_smote3, y_smote3 = smote.fit_resample(X_imputed3, y3)
 
     # --- Combine back into a single balanced DataFrame ---
-    df_heart_smote = pd.concat([X_smote3, y_smote3], axis=1)
+    df_bal = pd.concat([X_smote3, y_smote3], axis=1)
+    return df_bal
 
 
 

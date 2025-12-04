@@ -71,6 +71,60 @@ for df in [df_stroke_smote, df_balanced_diabetes]:
         le = LabelEncoder()
         df[col] = le.fit_transform(df[col])
 
+
+@st.cache_data
+def load_datasets(stroke_path, diabetes_path, heart_path):
+    df_stroke = pd.read_csv(stroke_path)
+    df_stroke = df_stroke.drop(columns=['id', 'ever_married', 'work_type', 'Residence_type'])
+    df_stroke = df_stroke[df_stroke['gender'] != 'Other']
+
+    df_diabetes = pd.read_csv(diabetes_path)
+    new_order = ['gender', 'age', 'hypertension', 'heart_disease', 'blood_glucose_level',
+                 'bmi', 'smoking_history', 'HbA1c_level', 'diabetes']
+    df_diabetes = df_diabetes[new_order]
+
+    df_heart = pd.read_csv(heart_path)
+    df_heart = df_heart.drop(columns=['PhysActivity', 'Fruits', 'AnyHealthcare', 'NoDocbcCost', 'GenHlth', 'MentHlth', 'PhysHlth',
+                            'DiffWalk', 'Education', 'Income', 'Veggies', 'HvyAlcoholConsump', 'CholCheck'])
+    df_heart_new_order = ['Sex', 'Age', 'HighBP', 'HeartDiseaseorAttack', 'BMI', 'Smoker', 'HighChol', 'Diabetes', 'Stroke']
+    df_heart = df_heart[df_heart_new_order]
+
+
+    return df_stroke, df_diabetes, df_heart
+
+stroke_path = "data/healthcare-dataset-stroke-data.csv"
+diabetes_path = "data/diabetes_prediction_dataset.csv"
+heart_path = "data/heart_disease_health_indicators_BRFSS2015.csv"
+
+df_stroke, df_diabetes, df_heart = load_datasets(stroke_path, diabetes_path, heart_path)
+
+
+
+def balance_heart(df):
+    label_encoder = LabelEncoder()
+    df_heart['Sex'] = label_encoder.fit_transform(df_heart['Sex'])
+
+    if 'smoker' in df_heart.columns:
+        df_heart['smoker'] = label_encoder.fit_transform(df_heart['smoker'])
+
+    # --- Separate features and target ---
+    X3 = df_heart.drop('HeartDiseaseorAttack', axis=1)
+    y3 = df_heart['HeartDiseaseorAttack']
+
+    # --- Handle missing values ---
+    # Use mean for numeric columns (you could also use median or mode)
+    imputer3 = SimpleImputer(strategy='mean')
+    X_imputed3 = pd.DataFrame(imputer3.fit_transform(X3), columns=X3.columns)
+
+    # --- Apply SMOTE ---
+    smote = SMOTE(random_state=42)
+    X_smote3, y_smote3 = smote.fit_resample(X_imputed3, y3)
+
+    # --- Combine back into a single balanced DataFrame ---
+    df_bal = pd.concat([X_smote3, y_smote3], axis=1)
+    return df_bal
+
+
 # ------------------------------------------------------------
 # Train Calibrated Stroke Model
 #help from chatGPT to calibrate the prediction model as the SMOTE and undersampled model were VERY far from realworld predictions
@@ -116,6 +170,33 @@ y_prob_cal_d = diab_model.predict_proba(X_test_d_scaled)[:, 1]
 
 print("Diabetes Brier score (uncalibrated):", brier_score_loss(y_test_d, y_prob_uncal_d))
 print("Diabetes Brier score (calibrated):", brier_score_loss(y_test_d, y_prob_cal_d))
+
+# ------------------------------------------------------------
+# Train Calibrated Heart Disease Model
+#help from chatGPT to calibrate the prediction model as the SMOTE and undersampled model were VERY far from realworld predictions
+# ------------------------------------------------------------
+X_heart = df_heart.drop('HeartDiseaseorAttack', axis=1)
+y_heart = df_heart['HeartDiseaseorAttack'] #change diabetes
+
+X_train_h, X_test_h, y_train_h, y_test_h = train_test_split(X_heart, y_heart, test_size=0.2, random_state=42)
+
+scaler_h = StandardScaler()
+X_train_h_scaled = scaler_h.fit_transform(X_train_h)
+X_test_h_scaled = scaler_h.transform(X_test_h)
+
+heart_model_raw = LogisticRegression(max_iter=1000, random_state=42)
+heart_model = CalibratedClassifierCV(heart_model_raw, cv=5)
+heart_model.fit(X_train_h_scaled, y_train_h)
+
+y_prob_uncal_h = heart_model_raw.fit(X_train_h_scaled, y_train_h).predict_proba(X_test_h_scaled)[:, 1]
+y_prob_cal_h = heart_model.predict_proba(X_test_h_scaled)[:, 1]
+
+print("Diabetes Brier score (uncalibrated):", brier_score_loss(y_test_d, y_prob_uncal_d))
+print("Diabetes Brier score (calibrated):", brier_score_loss(y_test_d, y_prob_cal_d))
+
+
+
+
 
 # ------------------------------------------------------------
 # Streamlit UI
