@@ -231,7 +231,7 @@ if model_choice == "Stroke":
         'age': [age],
         'hypertension': [int(hypertension)],
         'heart_disease': [int(heart_disease)],
-        'avg_glucose_level (70 to 99 is an average normal)': [glucose],
+        'avg_glucose_level': [glucose],
         'bmi': [bmi],
         'smoking_status': [0 if smoking_status == "never smoked"
                            else 1 if smoking_status == "formerly smoked"
@@ -269,7 +269,7 @@ elif model_choice == "Diabetes":
         'age': [age],
         'hypertension': [int(hypertension)],
         'heart_disease': [int(heart_disease)],
-        "blood_glucose_level (if you don't know70 to 90 is an average normal level)": [glucose],
+        'blood_glucose_level': [glucose],
         'bmi': [bmi],
         'smoking_history': [0 if smoking_history == "never"
                             else 1 if smoking_history == "former"
