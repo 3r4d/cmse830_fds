@@ -11,7 +11,7 @@ from sklearn.utils import resample
 # -----------------------
 # Streamlit Page Setup
 # -----------------------
-st.set_page_config(page_title="Stroke & Diabetes Analysis", layout="wide")
+st.set_page_config(page_title="Stroke, Diabetes, & Heart Disease Analysis", layout="wide")
 st.title("Stroke & Diabetes Dataset Analysis")
 
 
