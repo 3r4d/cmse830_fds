@@ -59,7 +59,7 @@ def balance_stroke(df):
     df_bal = pd.concat([X_smote, y_smote], axis=1)
     return df_bal
 
-df_stroke_smote = balance_stroke(df_stroke)
+df_stroke_smote = balance_stroke(df_stroke.copy()) # Use a copy to prevent SettingWithCopyWarning
 
 
 
@@ -81,24 +81,35 @@ def balance_diabetes(df):
     df_bal = df_bal.sample(frac=1, random_state=42).reset_index(drop=True)
     return df_bal
 
-df_balanced_diabetes = balance_diabetes(df_diabetes)
+df_balanced_diabetes = balance_diabetes(df_diabetes.copy()) # Use a copy
+
 
 # -----------------------
-# Balance Heart Dataset with Undersampling
+# Balance Heart Dataset with SMOTE (Using a copy of the dataframe)
 # -----------------------
+@st.cache_data
 def balance_heart(df):
+    df_heart_copy = df.copy()
     label_encoder = LabelEncoder()
-    df_heart['Sex'] = label_encoder.fit_transform(df_heart['Sex'])
+    df_heart_copy['Sex'] = label_encoder.fit_transform(df_heart_copy['Sex'])
 
-    if 'smoker' in df_heart.columns:
-        df_heart['smoker'] = label_encoder.fit_transform(df_heart['smoker'])
+    if 'Smoker' in df_heart_copy.columns:
+        # Note: assuming 'Smoker' column contains strings that need encoding if it wasn't numeric already
+        # Based on the BRFSS data, this column is usually 0/1 binary, so this encoding might be redundant if the CSV already used 0/1.
+        # But we'll keep it for robustness, assuming the input CSV for heart disease is mixed string/int.
+        df_heart_copy['Smoker'] = pd.to_numeric(df_heart_copy['Smoker'], errors='coerce')
+        df_heart_copy['Smoker'] = df_heart_copy['Smoker'].fillna(df_heart_copy['Smoker'].mode()[0])
+
+    # Ensure Age is numeric for imputation if needed, although it should be categorical codes (1-13)
+    for col in ['HighBP', 'Smoker', 'HighChol', 'Diabetes', 'Stroke', 'Age', 'BMI']:
+        df_heart_copy[col] = pd.to_numeric(df_heart_copy[col], errors='coerce')
+
 
     # --- Separate features and target ---
-    X3 = df_heart.drop('HeartDiseaseorAttack', axis=1)
-    y3 = df_heart['HeartDiseaseorAttack']
+    X3 = df_heart_copy.drop('HeartDiseaseorAttack', axis=1)
+    y3 = df_heart_copy['HeartDiseaseorAttack']
 
     # --- Handle missing values ---
-    # Use mean for numeric columns (you could also use median or mode)
     imputer3 = SimpleImputer(strategy='mean')
     X_imputed3 = pd.DataFrame(imputer3.fit_transform(X3), columns=X3.columns)
 
@@ -110,6 +121,7 @@ def balance_heart(df):
     df_bal = pd.concat([X_smote3, y_smote3], axis=1)
     return df_bal
 
+df_balanced_heart = balance_heart(df_heart.copy())
 
 
 # -----------------------
@@ -124,9 +136,24 @@ def plot_correlation_heatmap(df, title, figsize=(10,8)):
     st.pyplot(fig)
 
 
-
-
-
+# -----------------------
+# NEW: Age Code to Midpoint Age Mapping
+# -----------------------
+AGE_CODE_TO_MIDPOINT = {
+    1: 21,  # 18-24
+    2: 27,  # 25-29
+    3: 32,  # 30-34
+    4: 37,  # 35-39
+    5: 42,  # 40-44
+    6: 47,  # 45-49
+    7: 52,  # 50-54
+    8: 57,  # 55-59
+    9: 62,  # 60-64
+    10: 67, # 65-69
+    11: 72, # 70-74
+    12: 77, # 75-79
+    13: 82  # 80+ (Using 82 as a rough midpoint)
+}
 
 
 
@@ -134,7 +161,6 @@ st.title("👵Effects of aging 👴")
 st.write("Let's start by taking a look at the relationship between age and the likelihood you'll develop stroke, diabetes, or heart disease.")
 # -----------------------
 # Prepare age vs mean stroke probability
-#help from chat GPT to convert original code into functions in order to utilize the cache_data
 # -----------------------
 @st.cache_data
 def prepare_age_stroke_data(df):
@@ -146,7 +172,7 @@ def prepare_age_stroke_data(df):
 age_stroke_df = prepare_age_stroke_data(df_stroke_smote)
 
 # -----------------------
-# Streamlit interactive plot
+# Streamlit interactive plot - Stroke
 # -----------------------
 
 # Fit logistic regression for stroke
@@ -175,7 +201,6 @@ chart = alt.Chart(age_prob_df).mark_line(point=True).encode(
 ).interactive()
 
 st.altair_chart(chart, use_container_width=True)
-
 
 
 #Diabetes plot
@@ -208,7 +233,7 @@ st.altair_chart(chart_diabetes, use_container_width=True)
 
 
 #------------------
-#Heart disease plot (FIXED)
+#Heart disease plot (MODIFIED TO USE MIDPOINT AGE)
 #------------------
 # Fit logistic regression for heart disease
 X_heart = df_heart['Age'].values.reshape(-1, 1)
@@ -217,28 +242,32 @@ model_heart = LogisticRegression()
 model_heart.fit(X_heart, y_heart)
 
 # Generate age range and predicted probabilities
-# FIX: Use +1 to include the max code (13)
-age_range_heart = np.arange(df_heart['Age'].min(), df_heart['Age'].max() + 1)
-prob_heart = model_heart.predict_proba(age_range_heart.reshape(-1,1))[:,1]
+# Use +1 to include the max code (13)
+age_code_range = np.arange(df_heart['Age'].min(), df_heart['Age'].max() + 1)
+prob_heart = model_heart.predict_proba(age_code_range.reshape(-1,1))[:,1]
 
 # Create DataFrame for Altair
 age_prob_heart_df = pd.DataFrame({
-    'Age Code': age_range_heart,
-    'HeartDiseaseorAttack': prob_heart
+    'Age Code': age_code_range,
+    'Predicted Probability': prob_heart
 })
+
+# CRITICAL STEP: Map the Age Code to the Midpoint Age for plotting
+age_prob_heart_df['Age'] = age_prob_heart_df['Age Code'].map(AGE_CODE_TO_MIDPOINT)
+
 
 # Altair interactive plot
 chart_heart = alt.Chart(age_prob_heart_df).mark_line(point=True).encode(
-    # FIX: Change X-axis column and title for clarity
-    x=alt.X('Age Code', title='Age Group Code (1 = 18-24, 13 = 80+)'),
-    y=alt.Y('HeartDiseaseorAttack', title='Predicted Heart Disease Probability'),
-    tooltip=['Age Code', 'HeartDiseaseorAttack']
+    # Use the new 'Age' column (midpoint age) for the X-axis
+    x=alt.X('Age', title='Age (Midpoint of Group)'),
+    y=alt.Y('Predicted Probability', title='Predicted Heart Disease Probability'),
+    # Use the original Age Code for better tooltip context
+    tooltip=[alt.Tooltip('Age', title='Midpoint Age'), alt.Tooltip('Age Code', title='BRFSS Code'), 'Predicted Probability']
 ).properties(
-    title='Predicted Probability of Heart Disease by Age Group'
+    title='Predicted Probability of Heart Disease by Age Group Midpoint'
 ).interactive()
 
 st.altair_chart(chart_heart, use_container_width=True)
-
 
 
 st.write("Now that we can visualize the risk overtime, hop around the app and discover some ways in which we can control our probability.")
