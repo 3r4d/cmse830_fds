@@ -297,20 +297,21 @@ elif model_choice == "Diabetes":
 
     st.metric("Predicted Diabetes Probability", f"{prob_realistic * 100:.2f}%")
 
-else:  # This is the block for model_choice == "Heart Disease" (NEW SECTION)
+else:  # This is the block for model_choice == "Heart Disease"
+
     # Heart Disease-specific inputs (based on df_heart features: Sex, Age, HighBP, BMI, Smoker, HighChol, Diabetes, Stroke)
-    sex = st.selectbox("Sex", ["Female", "Male"])  # Sex is the feature name
-    smoker = st.checkbox("Smoker", value=False)  # Smoker is the feature name
-    high_chol = st.checkbox("High Cholesterol", value=False)  # HighChol is the feature name
-    diabetes = st.checkbox("Diabetes (Self-Reported)", value=False)  # Diabetes is the feature name
-    stroke_history = st.checkbox("History of Stroke", value=False)  # Stroke is the feature name
+    sex = st.selectbox("Sex", ["Female", "Male"]) # Sex is the feature name
+    smoker = st.checkbox("Smoker", value=False) # Smoker is the feature name
+    high_chol = st.checkbox("High Cholesterol", value=False) # HighChol is the feature name
+    diabetes = st.checkbox("Diabetes (Self-Reported)", value=False) # Diabetes is the feature name
+    stroke_history = st.checkbox("History of Stroke", value=False) # Stroke is the feature name
 
     # Prepare input - MUST match df_balanced_heart features
     # Encoding for Sex: Female=0, Male=1
     input_data = pd.DataFrame({
         'Sex': [0 if sex == "Female" else 1],
         'Age': [age],
-        'HighBP': [int(hypertension)],  # Using hypertension for HighBP
+        'HighBP': [int(hypertension)], # Using hypertension for HighBP
         'BMI': [bmi],
         'Smoker': [int(smoker)],
         'HighChol': [int(high_chol)],
@@ -319,7 +320,7 @@ else:  # This is the block for model_choice == "Heart Disease" (NEW SECTION)
     })
 
     input_scaled_h = scaler_h.transform(input_data)
-    prob_h = heart_model.predict_proba(input_scaled_h)[:, 1][0]  # Used scaler_h and input_scaled_h
+    prob_h = heart_model.predict_proba(input_scaled_h)[:, 1][0] # Used scaler_h and input_scaled_h
 
     # Re-anchor to real-world prevalence (~10%)
     real_prevalence_h = 0.10
