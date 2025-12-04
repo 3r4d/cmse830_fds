@@ -30,7 +30,7 @@ def load_and_prepare_data(stroke_path, diabetes_path, heart_path):
     imputer = SimpleImputer(strategy='mean')
     X_stroke_imputed = pd.DataFrame(imputer.fit_transform(X_stroke), columns=X_stroke.columns)
     smote = SMOTE(random_state=42)
-    # FIXED THE ERROR HERE: Use X_stroke_imputed
+    # FIX: Use X_stroke_imputed
     X_smote, y_smote = smote.fit_resample(X_stroke_imputed, y_stroke)
     df_stroke_smote = pd.concat([X_smote, y_smote], axis=1)
 
@@ -219,9 +219,11 @@ if model_choice == "Stroke":
 
     # 2. CHECKBOX / HISTORY INPUTS (Binary/Categorical data - grouped at bottom)
     st.subheader("Health History and Status")
+    # Checkboxes first
     hypertension = st.checkbox("Hypertension (High Blood Pressure)", value=False)
-    smoking_status = st.selectbox("Smoking Status", ["never smoked", "formerly smoked", "smokes"])
     heart_disease = st.checkbox("Heart Disease (History)", value=False)
+    # Selectbox last
+    smoking_status = st.selectbox("Smoking Status", ["never smoked", "formerly smoked", "smokes"])
 
     # Input encoding consistent with Stroke model training
     input_data = pd.DataFrame({
@@ -255,9 +257,11 @@ elif model_choice == "Diabetes":
 
     # 2. CHECKBOX / HISTORY INPUTS (Binary/Categorical data - grouped at bottom)
     st.subheader("Health History and Status")
+    # Checkboxes first
     hypertension = st.checkbox("Hypertension (High Blood Pressure)", value=False)
-    smoking_history = st.selectbox("Smoking History", ["never", "former", "current", "not current", "ever", "no info"])
     heart_disease = st.checkbox("Heart Disease (Self-Reported)", value=False)
+    # Selectbox last
+    smoking_history = st.selectbox("Smoking History", ["never", "former", "current", "not current", "ever", "no info"])
 
     # Input encoding consistent with Diabetes model training
     input_data = pd.DataFrame({
@@ -293,6 +297,7 @@ else:  # model_choice == "Heart Disease"
 
     # 2. CHECKBOX / HISTORY INPUTS (Binary data - grouped at bottom)
     st.subheader("Health History and Status")
+    # All are checkboxes for Heart Disease, naturally grouped
     hypertension = st.checkbox("Hypertension (High Blood Pressure)", value=False)
     smoker = st.checkbox("Smoker", value=False)
     high_chol = st.checkbox("High Cholesterol", value=False)
