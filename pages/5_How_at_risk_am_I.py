@@ -10,154 +10,153 @@ from sklearn.impute import SimpleImputer
 from imblearn.over_sampling import SMOTE
 from sklearn.utils import resample
 
-# -----------------------
-# Initial Data Loading and Setup (Run on every launch)
-# -----------------------
 
-# Original Stroke dataset
-stroke_path = "data/healthcare-dataset-stroke-data.csv"
-df_stroke = pd.read_csv(stroke_path)
-df_stroke = df_stroke.drop(columns=['id', 'ever_married', 'work_type', 'Residence_type'])
-df_stroke = df_stroke[df_stroke['gender'] != 'Other']
-
-# Original Diabetes dataset
-diabetes_path = "data/diabetes_prediction_dataset.csv"
-new_order = ['gender', 'age', 'hypertension', 'heart_disease', 'blood_glucose_level',
-             'bmi', 'smoking_history', 'HbA1c_level', 'diabetes']
-df_diabetes = pd.read_csv(diabetes_path)
-df_diabetes = df_diabetes[new_order]
-
-# -----------------------
-# Balance Stroke Dataset with SMOTE
-# -----------------------
-# Encode categorical variables
-label_encoder = LabelEncoder()
-df_stroke['gender'] = label_encoder.fit_transform(df_stroke['gender'])
-# Handle missing smoking status (if any) or encode it
-if 'smoking_status' in df_stroke.columns:
-    df_stroke['smoking_status'] = df_stroke['smoking_status'].fillna('Unknown')
-    df_stroke['smoking_status'] = label_encoder.fit_transform(df_stroke['smoking_status'])
-
-# Separate features and target
-X_stroke = df_stroke.drop('stroke', axis=1)
-y_stroke = df_stroke['stroke']
-
-# Impute missing values
-imputer = SimpleImputer(strategy='mean')
-X_stroke_imputed = pd.DataFrame(imputer.fit_transform(X_stroke), columns=X_stroke.columns)
-
-# Apply SMOTE
-smote = SMOTE(random_state=42)
-X_smote, y_smote = smote.fit_resample(X_stroke_imputed, y_stroke)
-df_stroke_smote = pd.concat([X_smote, y_smote], axis=1)
-
-# -----------------------
-# Balance Diabetes Dataset with Undersampling (FIXED)
-# -----------------------
-le = LabelEncoder()
-df_diabetes['gender'] = le.fit_transform(df_diabetes['gender'])
-df_diabetes['smoking_history'] = le.fit_transform(df_diabetes['smoking_history'])
-
-df_majority = df_diabetes[df_diabetes.diabetes == 0]
-df_minority = df_diabetes[df_diabetes.diabetes == 1]
-
-df_majority_downsampled = resample(df_majority,
-                                   replace=False,
-                                   n_samples=len(df_minority),
-                                   random_state=42)
-
-df_balanced_diabetes = pd.concat([df_majority_downsampled, df_minority])
-df_balanced_diabetes = df_balanced_diabetes.sample(frac=1, random_state=42).reset_index(drop=True)
-
-
-# -----------------------
-# Load and Balance Heart Disease Dataset (NEW/HARDENED)
-# -----------------------
+# Use st.cache_data for dataset loading and preparation
 @st.cache_data
-def load_datasets(stroke_path, diabetes_path, heart_path):
-    # ... (stroke and diabetes loading kept for completeness, though redefined globally)
+def load_and_prepare_data(stroke_path, diabetes_path, heart_path):
+    # --- STROKE DATA PREP ---
     df_stroke = pd.read_csv(stroke_path)
     df_stroke = df_stroke.drop(columns=['id', 'ever_married', 'work_type', 'Residence_type'])
     df_stroke = df_stroke[df_stroke['gender'] != 'Other']
+    label_encoder = LabelEncoder()
+    df_stroke['gender'] = label_encoder.fit_transform(df_stroke['gender'])
+    if 'smoking_status' in df_stroke.columns:
+        df_stroke['smoking_status'] = df_stroke['smoking_status'].fillna('Unknown')
+        df_stroke['smoking_status'] = label_encoder.fit_transform(df_stroke['smoking_status'])
 
+    X_stroke = df_stroke.drop('stroke', axis=1)
+    y_stroke = df_stroke['stroke']
+    imputer = SimpleImputer(strategy='mean')
+    X_stroke_imputed = pd.DataFrame(imputer.fit_transform(X_stroke), columns=X_stroke.columns)
+    smote = SMOTE(random_state=42)
+    X_smote, y_smote = smote.fit_resample(X_stroke_imputed, y_stroke)
+    df_stroke_smote = pd.concat([X_smote, y_smote], axis=1)
+
+    # --- DIABETES DATA PREP ---
     df_diabetes = pd.read_csv(diabetes_path)
     new_order = ['gender', 'age', 'hypertension', 'heart_disease', 'blood_glucose_level',
                  'bmi', 'smoking_history', 'HbA1c_level', 'diabetes']
     df_diabetes = df_diabetes[new_order]
+    le = LabelEncoder()
+    df_diabetes['gender'] = le.fit_transform(df_diabetes['gender'])
+    df_diabetes['smoking_history'] = le.fit_transform(df_diabetes['smoking_history'])
+    df_majority = df_diabetes[df_diabetes.diabetes == 0]
+    df_minority = df_diabetes[df_diabetes.diabetes == 1]
+    df_majority_downsampled = resample(df_majority, replace=False, n_samples=len(df_minority), random_state=42)
+    df_balanced_diabetes = pd.concat([df_majority_downsampled, df_minority])
+    df_balanced_diabetes = df_balanced_diabetes.sample(frac=1, random_state=42).reset_index(drop=True)
 
+    # --- HEART DISEASE DATA PREP ---
     df_heart = pd.read_csv(heart_path)
-    # Drop features not used in the model
     df_heart = df_heart.drop(
         columns=['PhysActivity', 'Fruits', 'AnyHealthcare', 'NoDocbcCost', 'GenHlth', 'MentHlth', 'PhysHlth',
                  'DiffWalk', 'Education', 'Income', 'Veggies', 'HvyAlcoholConsump', 'CholCheck'])
-
     df_heart_new_order = ['Sex', 'Age', 'HighBP', 'HeartDiseaseorAttack', 'BMI', 'Smoker', 'HighChol', 'Diabetes',
                           'Stroke']
     df_heart = df_heart[df_heart_new_order]
 
-    return df_stroke, df_diabetes, df_heart
+    df_copy = df_heart.copy()
+    le = LabelEncoder()
+    df_copy['Sex'] = le.fit_transform(df_copy['Sex'])
+    for col in ['HighBP', 'Smoker', 'HighChol', 'Diabetes', 'Stroke', 'Age', 'BMI']:
+        df_copy[col] = pd.to_numeric(df_copy[col], errors='coerce')
+
+    X3 = df_copy.drop('HeartDiseaseorAttack', axis=1)
+    y3 = df_copy['HeartDiseaseorAttack']
+    imputer3 = SimpleImputer(strategy='mean')
+    X_imputed3 = pd.DataFrame(imputer3.fit_transform(X3), columns=X3.columns)
+    smote = SMOTE(random_state=42)
+    X_smote3, y_smote3 = smote.fit_resample(X_imputed3, y3)
+    df_balanced_heart = pd.concat([X_smote3, y_smote3], axis=1)
+
+    return df_stroke_smote, df_balanced_diabetes, df_balanced_heart
 
 
+# Define paths
 stroke_path = "data/healthcare-dataset-stroke-data.csv"
 diabetes_path = "data/diabetes_prediction_dataset.csv"
 heart_path = "data/heart_disease_health_indicators_BRFSS2015.csv"
 
-# Load dataframes again using the cached function for consistency
-df_stroke_cached, df_diabetes_original, df_heart = load_datasets(stroke_path, diabetes_path, heart_path)
+# Load dataframes once and store them
+df_stroke_smote, df_balanced_diabetes, df_balanced_heart = load_and_prepare_data(stroke_path, diabetes_path, heart_path)
 
 
-def balance_heart(df):
-    df_copy = df.copy()
-    le = LabelEncoder()
+@st.cache_resource
+def train_and_calibrate_models(df_stroke, df_diabetes, df_heart):
+    models = {}
+    scalers = {}
+    y_probs = {}
 
-    # 1. Encode Sex
-    df_copy['Sex'] = le.fit_transform(df_copy['Sex'])
+    # --- STROKE MODEL ---
+    X_stroke = df_stroke.drop('stroke', axis=1)
+    y_stroke = df_stroke['stroke']
+    X_train_s, X_test_s, y_train_s, y_test_s = train_test_split(X_stroke, y_stroke, test_size=0.2, random_state=42)
+    scaler_s = StandardScaler()
+    X_train_s_scaled = scaler_s.fit_transform(X_train_s)
+    X_test_s_scaled = scaler_s.transform(X_test_s)
+    stroke_model_raw = LogisticRegression(max_iter=1000, random_state=42)
+    stroke_model = CalibratedClassifierCV(stroke_model_raw, cv=5)
+    stroke_model.fit(X_train_s_scaled, y_train_s)
+    y_prob_cal_s = stroke_model.predict_proba(X_test_s_scaled)[:, 1]
 
-    # 2. Ensure all other features are explicitly numeric (critical for StandardScaler)
-    for col in ['HighBP', 'Smoker', 'HighChol', 'Diabetes', 'Stroke', 'Age', 'BMI']:
-        df_copy[col] = pd.to_numeric(df_copy[col], errors='coerce')  # 'coerce' converts non-numeric values to NaN
+    models['stroke'] = stroke_model
+    scalers['stroke'] = scaler_s
+    y_probs['stroke'] = y_prob_cal_s
 
-    # --- Separate features and target ---
-    X3 = df_copy.drop('HeartDiseaseorAttack', axis=1)
-    y3 = df_copy['HeartDiseaseorAttack']
+    # --- DIABETES MODEL ---
+    X_diab = df_diabetes.drop('diabetes', axis=1)
+    y_diab = df_diabetes['diabetes']
+    X_train_d, X_test_d, y_train_d, y_test_d = train_test_split(X_diab, y_diab, test_size=0.2, random_state=42)
+    scaler_d = StandardScaler()
+    X_train_d_scaled = scaler_d.fit_transform(X_train_d)
+    X_test_d_scaled = scaler_d.transform(X_test_d)
+    diab_model_raw = LogisticRegression(max_iter=1000, random_state=42)
+    diab_model = CalibratedClassifierCV(diab_model_raw, cv=5)
+    diab_model.fit(X_train_d_scaled, y_train_d)
+    y_prob_cal_d = diab_model.predict_proba(X_test_d_scaled)[:, 1]
 
-    # --- Handle missing values (for any NaNs introduced by 'coerce' or original data) ---
-    imputer3 = SimpleImputer(strategy='mean')
-    X_imputed3 = pd.DataFrame(imputer3.fit_transform(X3), columns=X3.columns)
+    models['diabetes'] = diab_model
+    scalers['diabetes'] = scaler_d
+    y_probs['diabetes'] = y_prob_cal_d
 
-    # --- Apply SMOTE ---
-    smote = SMOTE(random_state=42)
-    X_smote3, y_smote3 = smote.fit_resample(X_imputed3, y3)
+    # --- HEART DISEASE MODEL ---
+    X_heart = df_heart.drop('HeartDiseaseorAttack', axis=1)
+    y_heart = df_heart['HeartDiseaseorAttack']
+    X_train_h, X_test_h, y_train_h, y_test_h = train_test_split(X_heart, y_heart, test_size=0.2, random_state=42)
+    scaler_h = StandardScaler()
+    X_train_h_scaled = scaler_h.fit_transform(X_train_h)
+    X_test_h_scaled = scaler_h.transform(X_test_h)
+    heart_model_raw = LogisticRegression(max_iter=1000, random_state=42)
+    heart_model = CalibratedClassifierCV(heart_model_raw, cv=5)
+    heart_model.fit(X_train_h_scaled, y_train_h)
+    y_prob_cal_h = heart_model.predict_proba(X_test_h_scaled)[:, 1]
 
-    # --- Combine back into a single balanced DataFrame ---
-    df_bal = pd.concat([X_smote3, y_smote3], axis=1)
-    return df_bal
+    models['heart'] = heart_model
+    scalers['heart'] = scaler_h
+    y_probs['heart'] = y_prob_cal_h
+
+    return models, scalers, y_probs
 
 
-df_balanced_heart = balance_heart(df_heart)
+# Execute the caching function once on startup
+models, scalers, y_probs = train_and_calibrate_models(df_stroke_smote, df_balanced_diabetes, df_balanced_heart)
 
-# ------------------------------------------------------------
-# Train Calibrated Stroke Model
-# ------------------------------------------------------------
-X_stroke = df_stroke_smote.drop('stroke', axis=1)
-y_stroke = df_stroke_smote['stroke']
+# Extract cached models and variables for use in the UI section
+stroke_model = models['stroke']
+scaler_s = scalers['stroke']
+y_prob_cal_s = y_probs['stroke']
 
-X_train_s, X_test_s, y_train_s, y_test_s = train_test_split(X_stroke, y_stroke, test_size=0.2, random_state=42)
+diab_model = models['diabetes']
+scaler_d = scalers['diabetes']
+y_prob_cal_d = y_probs['diabetes']
 
-scaler_s = StandardScaler()
-X_train_s_scaled = scaler_s.fit_transform(X_train_s)
-X_test_s_scaled = scaler_s.transform(X_test_s)
+heart_model = models['heart']
+scaler_h = scalers['heart']
+y_prob_cal_h = y_probs['heart']
 
-stroke_model_raw = LogisticRegression(max_iter=1000, random_state=42)
-stroke_model = CalibratedClassifierCV(stroke_model_raw, cv=5)
-stroke_model.fit(X_train_s_scaled, y_train_s)
-
-y_prob_uncal_s = stroke_model_raw.fit(X_train_s_scaled, y_train_s).predict_proba(X_test_s_scaled)[:, 1]
-y_prob_cal_s = stroke_model.predict_proba(X_test_s_scaled)[:, 1]
-
-print("Stroke Brier score (uncalibrated):", brier_score_loss(y_test_s, y_prob_uncal_s))
-print("Stroke Brier score (calibrated):", brier_score_loss(y_test_s, y_prob_cal_s))
-
+# NOTE: Remove all the Brier score print statements, as they were causing unnecessary output
+# and are now handled inside the cached function's scope.
+# The UI code block starts here...
 # ------------------------------------------------------------
 # Train Calibrated Diabetes Model
 # ------------------------------------------------------------
