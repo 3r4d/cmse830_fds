@@ -274,7 +274,9 @@ elif model_choice == "Diabetes":
         'smoking_history': [0 if smoking_history == "never"
                             else 1 if smoking_history == "former"
         else 2 if smoking_history == "current"
-        else 3 ],
+        else 3 if smoking_history == "not current"
+        else 4 if smoking_history == "ever"
+        else 5],
         'HbA1c_level': [hba1c]
     })
 
