@@ -183,7 +183,7 @@ if model_choice == "Stroke":
 
     # Input encoding consistent with Stroke model training
     input_data = pd.DataFrame({
-        'gender': [sex_input_encoded], # UPDATED: Use user's sex choice
+        'gender': [sex_input_encoded],  # UPDATED: Use user's sex choice
         'age': [age],
         'hypertension': [int(hypertension)],
         'heart_disease': [int(heart_disease)],
@@ -214,7 +214,7 @@ elif model_choice == "Diabetes":
 
     # Input encoding consistent with Diabetes model training
     input_data = pd.DataFrame({
-        'gender': [sex_input_encoded], # UPDATED: Use user's sex choice
+        'gender': [sex_input_encoded],  # UPDATED: Use user's sex choice
         'age': [age],
         'hypertension': [int(hypertension)],
         'heart_disease': [int(heart_disease)],
@@ -239,34 +239,38 @@ elif model_choice == "Diabetes":
 
     st.metric("Predicted Diabetes Probability", f"{prob_realistic * 100:.2f}%")
 
-else:  # model_choice == "Heart Disease" (FIXED)
+else:  # model_choice == "Heart Disease"
     # Heart Disease-specific inputs
-    # Note: The Heart Disease block already uses the 'sex_choice' variable (Sex=0/1) but re-defines it via st.selectbox
-    # and then encodes it again. We will remove the redundant selectbox and rely on the common 'sex_choice' input.
     smoker = st.checkbox("Smoker", value=False)
     high_chol = st.checkbox("High Cholesterol", value=False)
     diabetes_history = st.checkbox("Diabetes (Self-Reported)", value=False)
     stroke_history = st.checkbox("History of Stroke", value=False)
 
-    # Prepare input - MUST match df_balanced_heart features (Sex, Age, HighBP, BMI, Smoker, HighChol, Diabetes, Stroke)
-    # Encoding for Sex: Female=0, Male=1
+    # Prepare input - MUST match df_balanced_heart features
     input_data = pd.DataFrame({
-        'Sex': [sex_input_encoded], # UPDATED: Use user's sex choice from common input
+        'Sex': [sex_input_encoded],
         'Age': [age],
-        'HighBP': [int(hypertension)],  # Using hypertension for HighBP
+        'HighBP': [int(hypertension)],
         'BMI': [bmi],
         'Smoker': [int(smoker)],
         'HighChol': [int(high_chol)],
-        'Diabetes': [int(diabetes_history)],  # Using new diabetes_history variable
+        'Diabetes': [int(diabetes_history)],
         'Stroke': [int(stroke_history)]
     })
 
     input_scaled_h = scaler_h.transform(input_data)
     prob_h = heart_model.predict_proba(input_scaled_h)[:, 1][0]
 
-    # Re-anchor to real-world prevalence (~10%)
-    real_prevalence_h = 0.10
-    scaling_factor_h = real_prevalence_h / np.mean(y_prob_cal_h)
+    # --- ADJUSTED SCALING FOR REALISM ---
+    # The real prevalence is ~10%, but using this as the anchor point limits the maximum
+    # prediction to around 20% (since mean_prob is near 0.5 due to SMOTE).
+    # To allow realistic high risk (e.g., 80%), we increase the "target" prevalence
+    # to a value like 40% for the scaling calculation. This retains the model's
+    # relative risk but allows for higher absolute probabilities.
+    target_prevalence_for_scaling = 0.40  # Increased from 0.10
+
+    scaling_factor_h = target_prevalence_for_scaling / np.mean(y_prob_cal_h)
+
     prob_realistic_h = min(prob_h * scaling_factor_h, 1.0)
 
     st.metric("Predicted Heart Disease Probability", f"{prob_realistic_h * 100:.2f}%")
