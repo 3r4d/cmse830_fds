@@ -30,8 +30,8 @@ def load_and_prepare_data(stroke_path, diabetes_path, heart_path):
     imputer = SimpleImputer(strategy='mean')
     X_stroke_imputed = pd.DataFrame(imputer.fit_transform(X_stroke), columns=X_stroke.columns)
     smote = SMOTE(random_state=42)
-    X_smote, y_smote = smote.fit_resample(X_imputed3,
-                                          y_stroke)  # Error in original code, fixed X_imputed3 to X_stroke_imputed
+    # FIXED THE ERROR HERE: Use X_stroke_imputed
+    X_smote, y_smote = smote.fit_resample(X_stroke_imputed, y_stroke)
     df_stroke_smote = pd.concat([X_smote, y_smote], axis=1)
 
     # --- DIABETES DATA PREP ---
@@ -220,7 +220,6 @@ if model_choice == "Stroke":
     # 2. CHECKBOX / HISTORY INPUTS (Binary/Categorical data - grouped at bottom)
     st.subheader("Health History and Status")
     hypertension = st.checkbox("Hypertension (High Blood Pressure)", value=False)
-    # MOVED SMOKING STATUS SELECTBOX HERE
     smoking_status = st.selectbox("Smoking Status", ["never smoked", "formerly smoked", "smokes"])
     heart_disease = st.checkbox("Heart Disease (History)", value=False)
 
@@ -257,7 +256,6 @@ elif model_choice == "Diabetes":
     # 2. CHECKBOX / HISTORY INPUTS (Binary/Categorical data - grouped at bottom)
     st.subheader("Health History and Status")
     hypertension = st.checkbox("Hypertension (High Blood Pressure)", value=False)
-    # MOVED SMOKING HISTORY SELECTBOX HERE
     smoking_history = st.selectbox("Smoking History", ["never", "former", "current", "not current", "ever", "no info"])
     heart_disease = st.checkbox("Heart Disease (Self-Reported)", value=False)
 
