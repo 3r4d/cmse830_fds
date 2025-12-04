@@ -152,7 +152,7 @@ with st.expander("Class imbalance"):
     st.write("Initial Heart Disease Dataset:")
     st.write(df_heart['HeartDiseaseorAttack'].value_counts())
     st.write("Balanced Heart disease Dataset (SMOTE):")
-    st.write(df_balanced_heartheart['HeartDiseaseorAttack'].value_counts())
+    st.write(df_balanced_heart['HeartDiseaseorAttack'].value_counts())
 
 
 # -----------------------
