@@ -209,14 +209,20 @@ sex_input_encoded = 0 if sex_choice == "Female" else 1
 
 age = st.slider("Age", 0, 100, 45)
 bmi = st.slider("BMI", 10.0, 60.0, 25.0)
-hypertension = st.checkbox("Hypertension (High Blood Pressure)", value=False)
+
+# --- START OF MODEL-SPECIFIC BLOCKS ---
 
 if model_choice == "Stroke":
+    # 1. SLIDER/SELECTBOX INPUTS (Numerical/Continuous data)
     glucose = st.slider("Average Glucose Level", 50.0, 300.0, 100.0)
-    smoking_status = st.selectbox("Smoking Status", ["never smoked", "formerly smoked", "smokes"])
-    heart_disease = st.checkbox("Heart Disease", value=False)
 
-    # Input encoding consistent with Stroke model training (uses continuous age)
+    # 2. CHECKBOX / HISTORY INPUTS (Binary/Categorical data - grouped at bottom)
+    st.subheader("Health History and Status")
+    hypertension = st.checkbox("Hypertension (High Blood Pressure)", value=False)
+    smoking_status = st.selectbox("Smoking Status", ["never smoked", "formerly smoked", "smokes"])
+    heart_disease = st.checkbox("Heart Disease (History)", value=False)
+
+    # Input encoding consistent with Stroke model training
     input_data = pd.DataFrame({
         'gender': [sex_input_encoded],
         'age': [age],
@@ -238,16 +244,21 @@ if model_choice == "Stroke":
     scaling_factor = real_prevalence / np.mean(y_prob_cal_s)
     prob_realistic = min(prob * scaling_factor, 1.0)
 
+    # 3. PREDICTION OUTPUT
     st.metric("Predicted Stroke Probability", f"{prob_realistic * 100:.2f}%")
 
 elif model_choice == "Diabetes":
-    # Diabetes-specific inputs
+    # 1. SLIDER INPUTS (Numerical/Continuous data)
     hba1c = st.slider("HbA1c Level", 3.0, 10.0, 5.7)
     glucose = st.slider("Blood Glucose Level", 50.0, 300.0, 100.0)
-    smoking_history = st.selectbox("Smoking History", ["never", "former", "current", "not current", "ever", "no info"])
-    heart_disease = st.checkbox("Heart Disease (Self-Reported)", value=False)  # Feature is in diabetes dataset
 
-    # Input encoding consistent with Diabetes model training (uses continuous age)
+    # 2. CHECKBOX / HISTORY INPUTS (Binary/Categorical data - grouped at bottom)
+    st.subheader("Health History and Status")
+    hypertension = st.checkbox("Hypertension (High Blood Pressure)", value=False)
+    smoking_history = st.selectbox("Smoking History", ["never", "former", "current", "not current", "ever", "no info"])
+    heart_disease = st.checkbox("Heart Disease (Self-Reported)", value=False)
+
+    # Input encoding consistent with Diabetes model training
     input_data = pd.DataFrame({
         'gender': [sex_input_encoded],
         'age': [age],
@@ -272,17 +283,20 @@ elif model_choice == "Diabetes":
     scaling_factor = real_prevalence / np.mean(y_prob_cal_d)
     prob_realistic = min(prob * scaling_factor, 1.0)
 
+    # 3. PREDICTION OUTPUT
     st.metric("Predicted Diabetes Probability", f"{prob_realistic * 100:.2f}%")
 
 else:  # model_choice == "Heart Disease"
-    # Heart Disease-specific inputs
+    # 1. SLIDER INPUTS (Numerical/Continuous data - Age/BMI are common inputs)
+    age_code = map_age_to_brfss_code(age)
+
+    # 2. CHECKBOX / HISTORY INPUTS (Binary data - grouped at bottom)
+    st.subheader("Health History and Status")
+    hypertension = st.checkbox("Hypertension (High Blood Pressure)", value=False)  # Checkbox moved here
     smoker = st.checkbox("Smoker", value=False)
     high_chol = st.checkbox("High Cholesterol", value=False)
     diabetes_history = st.checkbox("Diabetes (Self-Reported)", value=False)
     stroke_history = st.checkbox("History of Stroke", value=False)
-
-    # ***CRITICAL FIX: MAP CONTINUOUS AGE TO BRFSS CATEGORICAL CODE***
-    age_code = map_age_to_brfss_code(age)
 
     # Prepare input - MUST match df_balanced_heart features
     input_data = pd.DataFrame({
@@ -299,10 +313,11 @@ else:  # model_choice == "Heart Disease"
     input_scaled_h = scaler_h.transform(input_data)
     prob_h = heart_model.predict_proba(input_scaled_h)[:, 1][0]
 
-    # --- ADJUSTED SCALING FOR REALISM (Carried over from last fix) ---
+    # --- ADJUSTED SCALING FOR REALISM ---
     target_prevalence_for_scaling = 0.40
     scaling_factor_h = target_prevalence_for_scaling / np.mean(y_prob_cal_h)
 
     prob_realistic_h = min(prob_h * scaling_factor_h, 1.0)
 
+    # 3. PREDICTION OUTPUT
     st.metric("Predicted Heart Disease Probability", f"{prob_realistic_h * 100:.2f}%")
