@@ -180,14 +180,25 @@ with st.expander("Visualization issues"):
         st.subheader("Stroke Dataset (SMOTE)")
         plot_correlation_heatmap(df_stroke_smote, "Correlation Heatmap - Stroke Dataset (SMOTE)", figsize=(12, 10))
     st.write("Is this a fluke? Let's check on the diabetes dataset and see if this pops up again or not.")
+
+
     with st.expander("Diabetes Dataset (balanced data)"):
         st.subheader("Diabetes Dataset (Balanced)")
         plot_correlation_heatmap(df_balanced_diabetes, "Correlation Heatmap - Diabetes Dataset", figsize=(10, 8))
         st.write(
     "When taking a look at the diabetes dataset the correlations seem a little more realistic, but there are some subtle issues as well.")
+
+    with st.expander("Heart Disease Heat Map (balanced data)"):
+        st.header("Correlation Heatmaps")
+        st.subheader("Heart Disease Dataset (SMOTE)")
+        plot_correlation_heatmap(df_balanced_heart, "Correlation Heatmap - Heart Disease Dataset (SMOTE)", figsize=(12, 10))
+    st.write("Finally bringing in the Heart Disease dataset we notice even more issues. This cannot be a fluke.")
+
     st.write(
     "Notice the correlation between high blood pressure and heart disease? It's only 0.10 indicating very little correlation. But according to several studies (one such study: https://pmc.ncbi.nlm.nih.gov/articles/PMC10243231/) hypertension and heart disease are heavily correlated and have a causal relationship. While this is not the main focus of the diabetes dataset, we can see there is another instance in which data correlations are not seeming to make sense.")
     st.write("So what could be going on? Let's take a look and compare the original data with the synthetic to see if maybe the synthetic data has anything to do with it or not.")
+
+
     with st.expander("Stroke heat map (original data vs SMOTE)"):
         st.subheader("Stroke Dataset (original)")
         plot_correlation_heatmap(df_stroke1, "Correlation Heatmap - Stroke Dataset (Original data)", figsize=(10, 8))
