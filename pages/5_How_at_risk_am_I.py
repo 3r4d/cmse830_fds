@@ -5,7 +5,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import brier_score_loss
+# from sklearn.metrics import brier_score_loss # Not needed for prediction
 from sklearn.impute import SimpleImputer
 from imblearn.over_sampling import SMOTE
 from sklearn.utils import resample
@@ -154,52 +154,10 @@ heart_model = models['heart']
 scaler_h = scalers['heart']
 y_prob_cal_h = y_probs['heart']
 
-# NOTE: Remove all the Brier score print statements, as they were causing unnecessary output
-# and are now handled inside the cached function's scope.
-# The UI code block starts here...
 # ------------------------------------------------------------
-# Train Calibrated Diabetes Model
+# REMOVED REDUNDANT/DUPLICATE TRAINING BLOCKS FOR DIABETES AND HEART DISEASE
+# These models are already trained and cached by the train_and_calibrate_models function
 # ------------------------------------------------------------
-X_diab = df_balanced_diabetes.drop('diabetes', axis=1)
-y_diab = df_balanced_diabetes['diabetes']
-
-X_train_d, X_test_d, y_train_d, y_test_d = train_test_split(X_diab, y_diab, test_size=0.2, random_state=42)
-
-scaler_d = StandardScaler()
-X_train_d_scaled = scaler_d.fit_transform(X_train_d)
-X_test_d_scaled = scaler_d.transform(X_test_d)
-
-diab_model_raw = LogisticRegression(max_iter=1000, random_state=42)
-diab_model = CalibratedClassifierCV(diab_model_raw, cv=5)
-diab_model.fit(X_train_d_scaled, y_train_d)
-
-y_prob_uncal_d = diab_model_raw.fit(X_train_d_scaled, y_train_d).predict_proba(X_test_d_scaled)[:, 1]
-y_prob_cal_d = diab_model.predict_proba(X_test_d_scaled)[:, 1]
-
-print("Diabetes Brier score (uncalibrated):", brier_score_loss(y_test_d, y_prob_uncal_d))
-print("Diabetes Brier score (calibrated):", brier_score_loss(y_test_d, y_prob_cal_d))
-
-# ------------------------------------------------------------
-# Train Calibrated Heart Disease Model (FIXED)
-# ------------------------------------------------------------
-X_heart = df_balanced_heart.drop('HeartDiseaseorAttack', axis=1)
-y_heart = df_balanced_heart['HeartDiseaseorAttack']
-
-X_train_h, X_test_h, y_train_h, y_test_h = train_test_split(X_heart, y_heart, test_size=0.2, random_state=42)
-
-scaler_h = StandardScaler()
-X_train_h_scaled = scaler_h.fit_transform(X_train_h)
-X_test_h_scaled = scaler_h.transform(X_test_h)
-
-heart_model_raw = LogisticRegression(max_iter=1000, random_state=42)
-heart_model = CalibratedClassifierCV(heart_model_raw, cv=5)
-heart_model.fit(X_train_h_scaled, y_train_h)
-
-y_prob_uncal_h = heart_model_raw.fit(X_train_h_scaled, y_train_h).predict_proba(X_test_h_scaled)[:, 1]
-y_prob_cal_h = heart_model.predict_proba(X_test_h_scaled)[:, 1]
-
-print("Heart Disease Brier score (uncalibrated):", brier_score_loss(y_test_h, y_prob_uncal_h))
-print("Heart Disease Brier score (calibrated):", brier_score_loss(y_test_h, y_prob_cal_h))
 
 # ------------------------------------------------------------
 # Streamlit UI
