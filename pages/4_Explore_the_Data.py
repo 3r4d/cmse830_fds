@@ -46,19 +46,6 @@ heart_path = "data/heart_disease_health_indicators_BRFSS2015.csv"
 df_stroke, df_diabetes, df_heart = load_datasets(stroke_path, diabetes_path, heart_path)
 
 
-st.write("Now that we know that overlaps exist, lets take a look at what factors influence these diseases the most.")
-st.write("Below are two charts showing the most important factors found in our data that influence the likelihood of having a stroke or developing diabetes.")
-st.write("According to these charts the factors are:")
-with st.expander("Stroke"):
-    st.write("Age, Smoking Status, Blood Glucose (Blood Sugar), and Hypertension (High Blood Pressure)")
-
-with st.expander("Diabetes"):
-    st.write("A1c, Blood Glucose (Blood Sugar), Age, and BMI")
-
-with st.expander("Heart Disease"):
-    st.write("Age, High Blood Pressure, BMI, and High Cholesterol")
-
-
 # -----------------------
 # Balance Stroke Dataset with SMOTE
 #help from chatGPT to choose the best method of balancing with large datasets
@@ -166,37 +153,54 @@ def plot_feature_importance(feat_imp_df, title="Feature Importance", palette="ma
     ax.set_title(title)
     st.pyplot(fig)
 
-# -----------------------
-# Stroke Random Forest
-# -----------------------
-st.header("Risk Factors for Stroke, Diabetes, and Heart disease")
-
-st.subheader("Stroke Dataset")
-X_stroke = df_stroke_smote.drop('stroke', axis=1)
-y_stroke = df_stroke_smote['stroke']
-feat_imp_stroke, rf_stroke = train_rf_feature_importance(X_stroke, y_stroke)
-plot_feature_importance(feat_imp_stroke, "Stroke Dataset - Feature Importance (Random Forest)", palette='viridis')
-
-# -----------------------
-# Diabetes Random Forest
-# -----------------------
-st.subheader("Diabetes Dataset")
-X_diabetes = df_balanced_diabetes.drop('diabetes', axis=1)
-y_diabetes = df_balanced_diabetes['diabetes']
-# Encode categorical columns
-for col in ['gender','smoking_history']:
-    X_diabetes[col] = LabelEncoder().fit_transform(X_diabetes[col])
-
-feat_imp_diabetes, rf_diabetes = train_rf_feature_importance(X_diabetes, y_diabetes)
-plot_feature_importance(feat_imp_diabetes, "Diabetes Dataset - Feature Importance (Random Forest)")
 
 
+st.write("Now that we know that overlaps exist, lets take a look at what factors influence these diseases the most.")
+st.write("Below are two charts showing the most important factors found in our data that influence the likelihood of having a stroke or developing diabetes.")
+st.write("According to these charts the factors are:")
+with st.expander("Stroke"):
+    st.write("Age, Smoking Status, Blood Glucose (Blood Sugar), and Hypertension (High Blood Pressure)")
+    # -----------------------
+    # Stroke Random Forest
+    # -----------------------
+    st.header("Risk Factors for Stroke, Diabetes, and Heart disease")
 
-# -----------------------
-# Heart Random Forest
-# -----------------------
-st.subheader("Heart Dataset")
-X_heart = df_heart_smote.drop('HeartDiseaseorAttack', axis=1)
-y_heart = df_heart_smote['HeartDiseaseorAttack']
-feat_imp_heart, rf_heart = train_rf_feature_importance(X_heart, y_heart)
-plot_feature_importance(feat_imp_heart, "Heart Dataset - Feature Importance (Random Forest)", palette='viridis')
+    st.subheader("Stroke Dataset")
+    X_stroke = df_stroke_smote.drop('stroke', axis=1)
+    y_stroke = df_stroke_smote['stroke']
+    feat_imp_stroke, rf_stroke = train_rf_feature_importance(X_stroke, y_stroke)
+    plot_feature_importance(feat_imp_stroke, "Stroke Dataset - Feature Importance (Random Forest)", palette='viridis')
+
+with st.expander("Diabetes"):
+    st.write("A1c, Blood Glucose (Blood Sugar), Age, and BMI")
+    # -----------------------
+    # Diabetes Random Forest
+    # -----------------------
+    st.subheader("Diabetes Dataset")
+    X_diabetes = df_balanced_diabetes.drop('diabetes', axis=1)
+    y_diabetes = df_balanced_diabetes['diabetes']
+    # Encode categorical columns
+    for col in ['gender', 'smoking_history']:
+        X_diabetes[col] = LabelEncoder().fit_transform(X_diabetes[col])
+
+    feat_imp_diabetes, rf_diabetes = train_rf_feature_importance(X_diabetes, y_diabetes)
+    plot_feature_importance(feat_imp_diabetes, "Diabetes Dataset - Feature Importance (Random Forest)")
+
+with st.expander("Heart Disease"):
+    st.write("Age, High Blood Pressure, BMI, and High Cholesterol")
+    # -----------------------
+    # Heart Random Forest
+    # -----------------------
+    st.subheader("Heart Dataset")
+    X_heart = df_heart_smote.drop('HeartDiseaseorAttack', axis=1)
+    y_heart = df_heart_smote['HeartDiseaseorAttack']
+    feat_imp_heart, rf_heart = train_rf_feature_importance(X_heart, y_heart)
+    plot_feature_importance(feat_imp_heart, "Heart Dataset - Feature Importance (Random Forest)", palette='viridis')
+
+
+
+
+
+
+
+
