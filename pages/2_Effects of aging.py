@@ -131,7 +131,7 @@ def plot_correlation_heatmap(df, title, figsize=(10,8)):
 
 
 st.title("👵Effects of aging 👴")
-st.write("Let's start by taking a look at the relationship between your age and the likelihood you'll develop stroke/diabetes.")
+st.write("Let's start by taking a look at the relationship between age and the likelihood you'll develop stroke, diabetes, or heart disease.")
 # -----------------------
 # Prepare age vs mean stroke probability
 #help from chat GPT to convert original code into functions in order to utilize the cache_data
@@ -208,31 +208,33 @@ st.altair_chart(chart_diabetes, use_container_width=True)
 
 
 #------------------
-#Heart disease plot
+#Heart disease plot (FIXED)
 #------------------
-# Fit logistic regression for stroke
+# Fit logistic regression for heart disease
 X_heart = df_heart['Age'].values.reshape(-1, 1)
 y_heart = df_heart['HeartDiseaseorAttack'].values
 model_heart = LogisticRegression()
 model_heart.fit(X_heart, y_heart)
 
 # Generate age range and predicted probabilities
-age_range_heart = np.arange(df_heart['Age'].min(), df_heart['Age'].max())
+# FIX: Use +1 to include the max code (13)
+age_range_heart = np.arange(df_heart['Age'].min(), df_heart['Age'].max() + 1)
 prob_heart = model_heart.predict_proba(age_range_heart.reshape(-1,1))[:,1]
 
 # Create DataFrame for Altair
 age_prob_heart_df = pd.DataFrame({
-    'Age': age_range_heart,
+    'Age Code': age_range_heart,
     'HeartDiseaseorAttack': prob_heart
 })
 
 # Altair interactive plot
 chart_heart = alt.Chart(age_prob_heart_df).mark_line(point=True).encode(
-    x=alt.X('Age', title='Age'),
-    y=alt.Y('HeartDiseaseorAttack', title='Heart Disease or Heart Attack'),
-    tooltip=['Age', 'HeartDiseaseorAttack']
+    # FIX: Change X-axis column and title for clarity
+    x=alt.X('Age Code', title='Age Group Code (1 = 18-24, 13 = 80+)'),
+    y=alt.Y('HeartDiseaseorAttack', title='Predicted Heart Disease Probability'),
+    tooltip=['Age Code', 'HeartDiseaseorAttack']
 ).properties(
-    title='Predicted Probability of Heart Disease or Heart Attack'
+    title='Predicted Probability of Heart Disease by Age Group'
 ).interactive()
 
 st.altair_chart(chart_heart, use_container_width=True)

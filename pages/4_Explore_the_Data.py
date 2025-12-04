@@ -156,7 +156,7 @@ def plot_feature_importance(feat_imp_df, title="Feature Importance", palette="ma
 
 
 st.write("Now that we know that overlaps exist, lets take a look at what factors influence these diseases the most.")
-st.write("Below are two charts showing the most important factors found in our data that influence the likelihood of having a stroke or developing diabetes.")
+st.write("Below are three charts showing the most important factors found in our data that influence the likelihood of having a stroke, developing diabetes, or developing heart disease.")
 st.write("According to these charts the factors are:")
 with st.expander("Stroke"):
     st.write("Age, Smoking Status, Blood Glucose (Blood Sugar), and Hypertension (High Blood Pressure)")
