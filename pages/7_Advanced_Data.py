@@ -396,7 +396,7 @@ with st.expander("CMSE830 Rubric info used on this page for ease of grading (to 
     st.write("Data Collection: Three datasets used, checked for missing values, several columns dropped from all datasets to match variables across the datasets, Column reordering.")
     st.write("Exploratory Data Analysis and Visualization: 3 visualizations on effects of aging page, 3 random forest visuals on Explore the data, 6 heat maps on advanced data.   ")
     st.write("Data Processing and Feature Engineering: One hot encoding used during data cleaning, scaling used in calibrated model in how at risk am i page, PCA used in failed feature engineering tab in advanced data, SVM used in explore the data  ")
-    st.write("Model Development and Evaluation: Random forest and SVM used in explore the data page, Model comparison used in advanced data page")
+    st.write("Model Development and Evaluation: Random forest and SVM used in explore the data page, Model comparison used in advanced data page and explore the data SVM to linear SVM")
     st.write("Streamlit App Development: 3 interactive plots in effects of aging, three interactive models in how at risk am i, drop down tabs everywhere, detailed info where applicable, caching used for random forest plots and SVM")
     st.write("Github Repository and Documentation: Github repository on https://github.com/3r4d/cmse830_fds")
     st.write("Advanced Modeling Techniques: None implemented")

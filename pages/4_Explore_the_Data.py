@@ -173,7 +173,7 @@ def perform_svm_classification(df, target_col, dataset_name):
     Performs data splitting, scaling, SVC training, and evaluation.
     """
     st.subheader(f"{dataset_name} - Support Vector Machine (SVM)")
-
+    st.write("Below you'll see two support vector models showing an 87% accuracy and a 77% accuracy respetively. The first model while more successful cannot be directly tied to variable while the lower accuracy can be. You'll see several factors along with their weight/importance")
     # 1. Separate Features (X) and Target (y)
     X = df.drop(target_col, axis=1)
     y = df[target_col]
@@ -352,7 +352,7 @@ with st.expander("Diabetes"):
         df_balanced_diabetes.copy(), 'diabetes'
     )
 
-with st.expander("Heart Disease (can take about 90 seconds to load all data"):
+with st.expander("Heart Disease (can take about 90 seconds to load all data)"):
     st.write("Age, High Blood Pressure, BMI, and High Cholesterol")
     # -----------------------
     # Heart Random Forest (Kept on Full Data for high fidelity features)
@@ -367,7 +367,7 @@ with st.expander("Heart Disease (can take about 90 seconds to load all data"):
     # C. SVM for Heart Disease Dataset (Downsampled RBF Kernel)
     # --------------------------------------------------------------------
     st.subheader("RBF Kernel SVM Analysis (Downsampled)")
-    st.markdown("⚠️ **Downsampling Note:** The RBF kernel SVM is highly complex ($O(N^2)$), so we limit the training data to 30,000 samples to ensure feasibility.")
+    st.markdown("**Downsampling Note:** The RBF kernel SVM is a complex and timely, therefore the training data was limited to 5,000 samples to reduce comuptation time.")
 
     # 1. Define the target sample size for the fast RBF model
     N_SAMPLES_RBF = 5000
