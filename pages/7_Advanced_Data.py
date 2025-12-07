@@ -187,6 +187,8 @@ with st.expander("Class imbalance"):
     st.write("When looking at the imbalance, we notice the heart disease dataset is no differet."
              "The number of people with Heart disease or Heart attack is " + str(int(sum(df_heart['HeartDiseaseorAttack']))) + ". Compare that to the total number of people: " + str(len(df_heart['HeartDiseaseorAttack'])) + ".")
 
+    st.write(
+        "Similar to the Stroke dataset SMOTE was used for the Heart disease dataset.")
     st.write("Initial Heart Disease Dataset:")
     st.write(df_heart['HeartDiseaseorAttack'].value_counts())
     st.write("Balanced Heart disease Dataset (SMOTE):")
@@ -217,7 +219,7 @@ with st.expander("Visualization issues"):
         st.header("Correlation Heatmaps")
         st.subheader("Stroke Dataset (SMOTE)")
         plot_correlation_heatmap(df_stroke_smote, "Correlation Heatmap - Stroke Dataset (SMOTE)", figsize=(12, 10))
-    st.write("Is this a fluke? Let's check on the diabetes dataset and see if this pops up again or not.")
+    st.write("Is this a fluke? Let's check on the diabetes and heart disease datasets and see if this pops up again or not.")
 
 
     with st.expander("Diabetes Dataset (balanced data)"):
