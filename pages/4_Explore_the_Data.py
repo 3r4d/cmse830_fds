@@ -371,4 +371,45 @@ def plot_pca_2d(df_pca, target_col, title):
     st.pyplot(fig)
 
 
+# -----------------------------------------------------------
+# Perform PCA on the Three Balanced Datasets
+# -----------------------------------------------------------
 
+st.header("✨ Principal Component Analysis (PCA)")
+st.write(
+    "PCA is used here to reduce the dimensionality of the datasets while retaining as much of the original variance as possible. This also helps in visualizing the data.")
+
+# --- PCA for Stroke Dataset ---
+df_stroke_pca, pca_stroke, X_stroke_scaled = perform_pca(df_stroke_smote, 'stroke')
+plot_pca_2d(df_stroke_pca, 'stroke', "Stroke Dataset")
+
+# Optional: Scree Plot to determine optimal components for Stroke
+pca_full_stroke = PCA().fit(X_stroke_scaled)
+plot_scree_plot(pca_full_stroke, "Stroke Dataset (Full PCA)")
+
+
+# --- PCA for Diabetes Dataset ---
+# Need to ensure 'gender' and 'smoking_history' are numerically encoded for df_balanced_diabetes
+# before standardizing and applying PCA, as done in the feature importance section.
+
+df_diabetes_pca_data = df_balanced_diabetes.copy()
+# Re-apply Label Encoding just in case the original function didn't save the changes globally
+le = LabelEncoder()
+df_diabetes_pca_data['gender'] = le.fit_transform(df_diabetes_pca_data['gender'])
+df_diabetes_pca_data['smoking_history'] = le.fit_transform(df_diabetes_pca_data['smoking_history'])
+
+df_diabetes_pca, pca_diabetes, X_diabetes_scaled = perform_pca(df_diabetes_pca_data, 'diabetes')
+plot_pca_2d(df_diabetes_pca, 'diabetes', "Diabetes Dataset")
+
+# Optional: Scree Plot to determine optimal components for Diabetes
+pca_full_diabetes = PCA().fit(X_diabetes_scaled)
+plot_scree_plot(pca_full_diabetes, "Diabetes Dataset (Full PCA)")
+
+
+# --- PCA for Heart Disease Dataset ---
+df_heart_pca, pca_heart, X_heart_scaled = perform_pca(df_heart_smote, 'HeartDiseaseorAttack')
+plot_pca_2d(df_heart_pca, 'HeartDiseaseorAttack', "Heart Disease Dataset")
+
+# Optional: Scree Plot to determine optimal components for Heart Disease
+pca_full_heart = PCA().fit(X_heart_scaled)
+plot_scree_plot(pca_full_heart, "Heart Disease Dataset (Full PCA)")
