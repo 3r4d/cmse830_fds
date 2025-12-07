@@ -201,7 +201,6 @@ st.title("🧠 Health Risk Predictor (Calibrated Model)")
 st.write(
     "Interactively explore how age, BMI, and health factors influence your probability of **stroke**, **diabetes**, or **heart disease**.")
 st.write("This model is a machine learning model that uses logistic regression to predict your liklihood of obtaining a disease based on the factors you select. The model is trained from a balanced dataset to extract the highest likelihood factors and then recalibrated to match real world data.")
-st.write("Feature engineering used")
 # Choose model type
 model_choice = st.radio("Select which condition to predict:", ["Stroke", "Diabetes", "Heart Disease"])
 

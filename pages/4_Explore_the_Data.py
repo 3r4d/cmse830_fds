@@ -17,6 +17,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 import numpy as np
 
+#'''Code note: This page of code gemini was utilized *often*. With the SVM the webapp broke often. Gemini was used to calculate that SVM on the whole heart dataset would take roughly 24 hours or more so Gemini was used for debugging, and providing alternate ways to perform SVM while decreasing runtime. You'll notice AI formatting in the SVM sections due to several iterations of debugging.'''
 
 # -----------------------
 # Streamlit Page Setup
@@ -315,9 +316,10 @@ with st.expander("Stroke"):
     # --------------------------------------------------------------------
     # A. SVM for Stroke Dataset
     # --------------------------------------------------------------------
-    perform_svm_classification(df_stroke_smote, 'stroke', "Stroke Dataset")
     st.write(
         "Below you'll see two support vector models showing an 87% accuracy and a 77% accuracy respetively. The first model while more successful cannot be directly tied to variable while the lower accuracy can be. You'll see several factors along with their weight/importance")
+
+    perform_svm_classification(df_stroke_smote, 'stroke', "Stroke Dataset")
 
     # --- 1. Linear SVM on Stroke Dataset ---
     acc_stroke_lin, report_stroke_lin, coef_stroke = train_linear_svm_and_show_coefficients(
@@ -344,6 +346,9 @@ with st.expander("Diabetes"):
     # --------------------------------------------------------------------
     # We need a copy of the balanced diabetes data to ensure 'gender' and
     # 'smoking_history' are encoded numerically before scaling for the model.
+    st.write(
+        "Below you'll see two support vector models showing an 90% accuracy and a 88% accuracy respetively. The first model while more successful cannot be directly tied to variable while the lower accuracy can be. You'll see several factors along with their weight/importance")
+
     df_diabetes_svm = df_balanced_diabetes.copy()
     perform_svm_classification(df_diabetes_svm, 'diabetes', "Diabetes Dataset")
 
@@ -359,13 +364,16 @@ with st.expander("Heart Disease (can take about 90 seconds to load all data)"):
     # -----------------------
     st.subheader("Heart Dataset")
     X_heart = df_heart_smote.drop('HeartDiseaseorAttack', axis=1)
-    y_heart = df_heart_smote['HeartDiseaseorAttack']
+    y_heart = df_heart_smote['Heart Disease orAttack']
     feat_imp_heart, rf_heart = train_rf_feature_importance(X_heart, y_heart)
     plot_feature_importance(feat_imp_heart, "Heart Dataset - Feature Importance (Random Forest)", palette='viridis')
 
     # --------------------------------------------------------------------
     # C. SVM for Heart Disease Dataset (Downsampled RBF Kernel)
     # --------------------------------------------------------------------
+    st.write(
+        "Below you'll see two support vector models showing an 76% accuracy and a 75% accuracy respetively. The first model while more successful cannot be directly tied to variable while the lower accuracy can be. You'll see several factors along with their weight/importance")
+
     st.subheader("RBF Kernel SVM Analysis (Downsampled)")
     st.markdown("**Downsampling Note:** The RBF kernel SVM is a complex and timely, therefore the training data was limited to 5,000 samples to reduce comuptation time.")
 

@@ -153,7 +153,7 @@ df_heart_smote = balance_heart(df_heart)
 #==================================================
 
 with st.expander("Class imbalance"):
-    st.write("When working with the original datasets you'll notice that the amount of patients with diabetes/stroke is HEAVILY outnumbered by those who do not have diabetes/stroke.")
+    st.write("When working with the original datasets you'll notice that the amount of patients with stroke, diabetes, and heart disease is HEAVILY outnumbered by those who do not have diabetes/stroke.")
     st.subheader("Stroke Dataset")
     st.dataframe(df_stroke1.head())
     st.write("Here we see stroke data that looks at factors such as: age, high blood pressure(hypertension), heart disease, average blood glucose level, BMI, smoking history, and whether or not the person has had a stroke before.")
@@ -182,6 +182,11 @@ with st.expander("Class imbalance"):
 
     st.subheader("Heart Disease Dataset")
     st.dataframe(df_heart.head())
+    st.write(
+        "As with the stroke and diabetes dataset, the heart dataset share very similar factors.")
+    st.write("When looking at the imbalance, we notice the heart disease dataset is no differet."
+             "The number of people with Heart disease or Heart attack is " + str(sum(df_heart['Heartdiseaseorattack'])) + ". Compare that to the total number of people: " + str(len(df_heart['Heartdiseaseorattack'])) + ".")
+
     st.write("Initial Heart Disease Dataset:")
     st.write(df_heart['HeartDiseaseorAttack'].value_counts())
     st.write("Balanced Heart disease Dataset (SMOTE):")
@@ -357,7 +362,7 @@ with st.expander("Failed Feature Engineering"):
     st.write(
         "PCA is used here to reduce the dimensionality of the datasets while retaining as much of the original variance as possible. This is supposed to help in visualizing the data.")
     st.write("However, as you'll see in the plots below all the data is grouped and there is no clear distinction between the target groups and the non-target groups. This means that this data is not suitable for linear dimensionality reduction.")
-
+    st.write("You'll also see in the scree plot there is no obvious elbow. The first PC covers roughly 70% of the variance, but it takes several more PC to cover 90% of the variance in each model.")
     # --- PCA for Stroke Dataset ---
     df_stroke_pca, pca_stroke, X_stroke_scaled = perform_pca(df_stroke_smote, 'stroke')
     plot_pca_2d(df_stroke_pca, 'stroke', "Stroke Dataset")

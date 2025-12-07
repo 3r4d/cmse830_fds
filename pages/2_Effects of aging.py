@@ -269,16 +269,4 @@ st.altair_chart(chart_heart, use_container_width=True)
 
 st.write("Now that we can visualize the risk overtime, hop around the app and discover some ways in which we can control our probability.")
 
-with st.expander("CMSE830 Rubric info used on this page for ease of grading (to be removed after grading) "):
-    st.write("Data Collection: ")
-    st.write("Exploratory Data Analysis and Visualization: ")
-    st.write("Data Processing and Feature Engineering: ")
-    st.write("Model Development and Evaluation: ")
-    st.write("Streamlit App Development: ")
-    st.write("Github Repository and Documentation: ")
-    st.write("Advanced Modeling Techniques: ")
-    st.write("Specialized Data Science Applications: ")
-    st.write("High-Performance Computing: ")
-    st.write("Real-world Application and Impact: ")
-    st.write("Exceptional Presentation and visualization: ")
 
