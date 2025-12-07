@@ -25,3 +25,5 @@ with st.expander("Sources"):
     st.write("https://www.cdc.gov/diabetes/risk-factors/index.html")
     st.write("https://health.umms.org/2024/02/02/relationship-between-diabetes-and-stroke/")
     st.write("https://www.cdc.gov/heart-disease/risk-factors/index.html")
+
+

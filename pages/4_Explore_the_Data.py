@@ -162,50 +162,7 @@ def plot_feature_importance(feat_imp_df, title="Feature Importance", palette="ma
     st.pyplot(fig)
 
 
-
-st.write("Now that we know that overlaps exist, lets take a look at what factors influence these diseases the most.")
-st.write("Below are three charts showing the most important factors found in our data that influence the likelihood of having a stroke, developing diabetes, or developing heart disease.")
-st.write("According to these charts the factors are:")
-with st.expander("Stroke"):
-    st.write("Age, Smoking Status, Blood Glucose (Blood Sugar), and Hypertension (High Blood Pressure)")
-    # -----------------------
-    # Stroke Random Forest
-    # -----------------------
-    st.header("Risk Factors for Stroke, Diabetes, and Heart disease")
-
-    st.subheader("Stroke Dataset")
-    X_stroke = df_stroke_smote.drop('stroke', axis=1)
-    y_stroke = df_stroke_smote['stroke']
-    feat_imp_stroke, rf_stroke = train_rf_feature_importance(X_stroke, y_stroke)
-    plot_feature_importance(feat_imp_stroke, "Stroke Dataset - Feature Importance (Random Forest)", palette='viridis')
-
-with st.expander("Diabetes"):
-    st.write("A1c, Blood Glucose (Blood Sugar), Age, and BMI")
-    # -----------------------
-    # Diabetes Random Forest
-    # -----------------------
-    st.subheader("Diabetes Dataset")
-    X_diabetes = df_balanced_diabetes.drop('diabetes', axis=1)
-    y_diabetes = df_balanced_diabetes['diabetes']
-    # Encode categorical columns
-    for col in ['gender', 'smoking_history']:
-        X_diabetes[col] = LabelEncoder().fit_transform(X_diabetes[col])
-
-    feat_imp_diabetes, rf_diabetes = train_rf_feature_importance(X_diabetes, y_diabetes)
-    plot_feature_importance(feat_imp_diabetes, "Diabetes Dataset - Feature Importance (Random Forest)")
-
-with st.expander("Heart Disease"):
-    st.write("Age, High Blood Pressure, BMI, and High Cholesterol")
-    # -----------------------
-    # Heart Random Forest
-    # -----------------------
-    st.subheader("Heart Dataset")
-    X_heart = df_heart_smote.drop('HeartDiseaseorAttack', axis=1)
-    y_heart = df_heart_smote['HeartDiseaseorAttack']
-    feat_imp_heart, rf_heart = train_rf_feature_importance(X_heart, y_heart)
-    plot_feature_importance(feat_imp_heart, "Heart Dataset - Feature Importance (Random Forest)", palette='viridis')
-
-
+@st.cache_data
 # --- Helper Function for SVM ---
 def perform_svm_classification(df, target_col, dataset_name):
     """
@@ -255,26 +212,6 @@ def perform_svm_classification(df, target_col, dataset_name):
     st.text(f"Confusion Matrix for {dataset_name}:")
     st.code(confusion_matrix(y_test, y_pred))
     st.markdown("---")
-
-
-# --------------------------------------------------------------------
-# A. SVM for Stroke Dataset
-# --------------------------------------------------------------------
-perform_svm_classification(df_stroke_smote, 'stroke', "Stroke Dataset")
-
-# --------------------------------------------------------------------
-# B. SVM for Diabetes Dataset
-# --------------------------------------------------------------------
-# We need a copy of the balanced diabetes data to ensure 'gender' and
-# 'smoking_history' are encoded numerically before scaling for the model.
-df_diabetes_svm = df_balanced_diabetes.copy()
-perform_svm_classification(df_diabetes_svm, 'diabetes', "Diabetes Dataset")
-
-
-# --------------------------------------------------------------------
-# C. SVM for Heart Disease Dataset
-# --------------------------------------------------------------------
-perform_svm_classification(df_heart_smote, 'HeartDiseaseorAttack', "Heart Disease Dataset")
 
 
 # --- Helper function for Linear SVM ---
@@ -357,26 +294,86 @@ def train_linear_svm_and_show_coefficients(df, target_col, random_state=42):
     return accuracy, report, coefficients_df
 
 
-# --------------------------------------------------------------------------------
-# Main Execution for the Three Datasets
-# --------------------------------------------------------------------------------
+st.write("Now that we know that overlaps exist, lets take a look at what factors influence these diseases the most.")
+st.write("Below are three charts showing the most important factors found in our data that influence the likelihood of having a stroke, developing diabetes, or developing heart disease.")
+st.write("According to these charts the factors are:")
+with st.expander("Stroke"):
+    st.write("Age, Smoking Status, Blood Glucose (Blood Sugar), and Hypertension (High Blood Pressure)")
+    # -----------------------
+    # Stroke Random Forest
+    # -----------------------
+    st.header("Risk Factors for Stroke, Diabetes, and Heart disease")
 
-st.title("Linear SVM Modeling and Interpretation")
+    st.subheader("Stroke Dataset")
+    X_stroke = df_stroke_smote.drop('stroke', axis=1)
+    y_stroke = df_stroke_smote['stroke']
+    feat_imp_stroke, rf_stroke = train_rf_feature_importance(X_stroke, y_stroke)
+    plot_feature_importance(feat_imp_stroke, "Stroke Dataset - Feature Importance (Random Forest)", palette='viridis')
 
-# Ensure df_stroke_smote, df_balanced_diabetes, and df_heart_smote are available in the scope
-# (This assumes the data loading and balancing code from the prompt is executed before this block)
+    # --------------------------------------------------------------------
+    # A. SVM for Stroke Dataset
+    # --------------------------------------------------------------------
+    perform_svm_classification(df_stroke_smote, 'stroke', "Stroke Dataset")
 
-# --- 1. Linear SVM on Stroke Dataset ---
-acc_stroke_lin, report_stroke_lin, coef_stroke = train_linear_svm_and_show_coefficients(
-    df_stroke_smote.copy(), 'stroke'
-)
+    # --- 1. Linear SVM on Stroke Dataset ---
+    acc_stroke_lin, report_stroke_lin, coef_stroke = train_linear_svm_and_show_coefficients(
+        df_stroke_smote.copy(), 'stroke'
+    )
 
-# --- 2. Linear SVM on Diabetes Dataset ---
-acc_diabetes_lin, report_diabetes_lin, coef_diabetes = train_linear_svm_and_show_coefficients(
-    df_balanced_diabetes.copy(), 'diabetes'
-)
+with st.expander("Diabetes"):
+    st.write("A1c, Blood Glucose (Blood Sugar), Age, and BMI")
+    # -----------------------
+    # Diabetes Random Forest
+    # -----------------------
+    st.subheader("Diabetes Dataset")
+    X_diabetes = df_balanced_diabetes.drop('diabetes', axis=1)
+    y_diabetes = df_balanced_diabetes['diabetes']
+    # Encode categorical columns
+    for col in ['gender', 'smoking_history']:
+        X_diabetes[col] = LabelEncoder().fit_transform(X_diabetes[col])
 
-# --- 3. Linear SVM on Heart Disease Dataset ---
-acc_heart_lin, report_heart_lin, coef_heart = train_linear_svm_and_show_coefficients(
-    df_heart_smote.copy(), 'HeartDiseaseorAttack'
-)
+    feat_imp_diabetes, rf_diabetes = train_rf_feature_importance(X_diabetes, y_diabetes)
+    plot_feature_importance(feat_imp_diabetes, "Diabetes Dataset - Feature Importance (Random Forest)")
+
+    # --------------------------------------------------------------------
+    # B. SVM for Diabetes Dataset
+    # --------------------------------------------------------------------
+    # We need a copy of the balanced diabetes data to ensure 'gender' and
+    # 'smoking_history' are encoded numerically before scaling for the model.
+    df_diabetes_svm = df_balanced_diabetes.copy()
+    perform_svm_classification(df_diabetes_svm, 'diabetes', "Diabetes Dataset")
+
+    # --- 2. Linear SVM on Diabetes Dataset ---
+    acc_diabetes_lin, report_diabetes_lin, coef_diabetes = train_linear_svm_and_show_coefficients(
+        df_balanced_diabetes.copy(), 'diabetes'
+    )
+
+with st.expander("Heart Disease"):
+    st.write("Age, High Blood Pressure, BMI, and High Cholesterol")
+    # -----------------------
+    # Heart Random Forest
+    # -----------------------
+    st.subheader("Heart Dataset")
+    X_heart = df_heart_smote.drop('HeartDiseaseorAttack', axis=1)
+    y_heart = df_heart_smote['HeartDiseaseorAttack']
+    feat_imp_heart, rf_heart = train_rf_feature_importance(X_heart, y_heart)
+    plot_feature_importance(feat_imp_heart, "Heart Dataset - Feature Importance (Random Forest)", palette='viridis')
+
+    # --------------------------------------------------------------------
+    # C. SVM for Heart Disease Dataset
+    # --------------------------------------------------------------------
+    perform_svm_classification(df_heart_smote, 'HeartDiseaseorAttack', "Heart Disease Dataset")
+
+    # --- 3. Linear SVM on Heart Disease Dataset ---
+    acc_heart_lin, report_heart_lin, coef_heart = train_linear_svm_and_show_coefficients(
+        df_heart_smote.copy(), 'HeartDiseaseorAttack'
+    )
+
+
+
+
+
+
+
+
+
