@@ -352,7 +352,7 @@ with st.expander("Diabetes"):
         df_balanced_diabetes.copy(), 'diabetes'
     )
 
-with st.expander("Heart Disease"):
+with st.expander("Heart Disease (can take about 90 seconds to load all data"):
     st.write("Age, High Blood Pressure, BMI, and High Cholesterol")
     # -----------------------
     # Heart Random Forest (Kept on Full Data for high fidelity features)
