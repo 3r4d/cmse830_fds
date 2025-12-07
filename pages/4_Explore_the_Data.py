@@ -370,7 +370,7 @@ with st.expander("Heart Disease"):
     st.markdown("⚠️ **Downsampling Note:** The RBF kernel SVM is highly complex ($O(N^2)$), so we limit the training data to 30,000 samples to ensure feasibility.")
 
     # 1. Define the target sample size for the fast RBF model
-    N_SAMPLES_RBF = 20000
+    N_SAMPLES_RBF = 5000
 
     # 2. Downsample the balanced data
     if len(df_heart_smote) > N_SAMPLES_RBF:
