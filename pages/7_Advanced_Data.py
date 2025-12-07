@@ -353,9 +353,10 @@ with st.expander("Failed Feature Engineering"):
     # Perform PCA on the Three Balanced Datasets
     # -----------------------------------------------------------
 
-    st.header("✨ Principal Component Analysis (PCA)")
+    st.header("Principal Component Analysis (PCA)")
     st.write(
-        "PCA is used here to reduce the dimensionality of the datasets while retaining as much of the original variance as possible. This also helps in visualizing the data.")
+        "PCA is used here to reduce the dimensionality of the datasets while retaining as much of the original variance as possible. This is supposed to help in visualizing the data.")
+    st.write("However, as you'll see in the plots below all the data is grouped and there is no clear distinction between the target groups and the non-target groups. This means that this data is not suitable for linear dimensionality reduction.")
 
     # --- PCA for Stroke Dataset ---
     df_stroke_pca, pca_stroke, X_stroke_scaled = perform_pca(df_stroke_smote, 'stroke')

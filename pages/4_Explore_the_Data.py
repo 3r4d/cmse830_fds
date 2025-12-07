@@ -355,7 +355,7 @@ with st.expander("Diabetes"):
 with st.expander("Heart Disease"):
     st.write("Age, High Blood Pressure, BMI, and High Cholesterol")
     # -----------------------
-    # Heart Random Forest
+    # Heart Random Forest (Kept on Full Data for high fidelity features)
     # -----------------------
     st.subheader("Heart Dataset")
     X_heart = df_heart_smote.drop('HeartDiseaseorAttack', axis=1)
@@ -364,20 +364,39 @@ with st.expander("Heart Disease"):
     plot_feature_importance(feat_imp_heart, "Heart Dataset - Feature Importance (Random Forest)", palette='viridis')
 
     # --------------------------------------------------------------------
-    # C. SVM for Heart Disease Dataset
+    # C. SVM for Heart Disease Dataset (Downsampled RBF Kernel)
     # --------------------------------------------------------------------
-    perform_svm_classification(df_heart_smote, 'HeartDiseaseorAttack', "Heart Disease Dataset")
+    st.subheader("RBF Kernel SVM Analysis (Downsampled)")
+    st.markdown("⚠️ **Downsampling Note:** The RBF kernel SVM is highly complex ($O(N^2)$), so we limit the training data to 30,000 samples to ensure feasibility.")
 
-    # --- 3. Linear SVM on Heart Disease Dataset ---
-    acc_heart_lin, report_heart_lin, coef_heart = train_linear_svm_and_show_coefficients(
-        df_heart_smote.copy(), 'HeartDiseaseorAttack'
+    # 1. Define the target sample size for the fast RBF model
+    N_SAMPLES_RBF = 30000
+
+    # 2. Downsample the balanced data
+    if len(df_heart_smote) > N_SAMPLES_RBF:
+        df_heart_rbf_downsampled = resample(
+            df_heart_smote,
+            replace=False,
+            n_samples=N_SAMPLES_RBF,
+            random_state=42,
+            stratify=df_heart_smote['HeartDiseaseorAttack']
+        )
+    else:
+        df_heart_rbf_downsampled = df_heart_smote.copy()
+
+    # 3. Perform RBF SVM classification on the smaller dataset
+    perform_svm_classification(
+        df_heart_rbf_downsampled,
+        'HeartDiseaseorAttack',
+        f"Heart Disease Dataset (Downsampled N={len(df_heart_rbf_downsampled)})"
     )
 
-
-
-
-
-
-
-
-
+    # --------------------------------------------------------------------
+    # D. Linear SVM for Heart Disease Dataset (Kept on Full Data)
+    # --------------------------------------------------------------------
+    # Linear SVM is much faster and can handle the full 460k samples in a reasonable time.
+    st.subheader("Linear Kernel SVM Analysis (Full Data)")
+    acc_heart_lin, report_heart_lin, coef_heart = train_linear_svm_and_show_coefficients(
+        df_heart_smote.copy(),
+        'HeartDiseaseorAttack'
+    )
