@@ -7,6 +7,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.ensemble import RandomForestClassifier
 from imblearn.over_sampling import SMOTE
 from sklearn.utils import resample
+from sklearn.preprocessing import StandardScaler
 
 # -----------------------
 # Streamlit Page Setup
