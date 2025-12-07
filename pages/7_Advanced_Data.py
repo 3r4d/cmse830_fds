@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import seaborn as sns
+import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
 from sklearn.impute import SimpleImputer
@@ -8,6 +9,8 @@ from sklearn.ensemble import RandomForestClassifier
 from imblearn.over_sampling import SMOTE
 from sklearn.utils import resample
 from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
 
 # -----------------------
 # Streamlit Page Setup
@@ -116,6 +119,34 @@ def balance_heart(df):
     return df_bal
 
 df_balanced_heart = balance_heart(df_heart.copy())
+
+def balance_heart(df):
+    label_encoder = LabelEncoder()
+    # FIX 1: Change global 'df_heart' to local 'df'
+    df['Sex'] = label_encoder.fit_transform(df['Sex'])
+
+    if 'smoker' in df.columns:
+        # FIX 2: Change global 'df_heart' to local 'df'
+        df['smoker'] = label_encoder.fit_transform(df['smoker'])
+
+    # --- Separate features and target ---
+    X3 = df.drop('HeartDiseaseorAttack', axis=1)
+    y3 = df['HeartDiseaseorAttack']
+
+    # --- Handle missing values ---
+    # Use mean for numeric columns (you could also use median or mode)
+    imputer3 = SimpleImputer(strategy='mean')
+    X_imputed3 = pd.DataFrame(imputer3.fit_transform(X3), columns=X3.columns)
+
+    # --- Apply SMOTE ---
+    smote = SMOTE(random_state=42)
+    X_smote3, y_smote3 = smote.fit_resample(X_imputed3, y3)
+
+    # --- Combine back into a single balanced DataFrame ---
+    df_bal = pd.concat([X_smote3, y_smote3], axis=1)
+    return df_bal
+
+df_heart_smote = balance_heart(df_heart)
 
 #==================================================
 #Class imbalance drop down
