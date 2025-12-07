@@ -185,7 +185,7 @@ with st.expander("Class imbalance"):
     st.write(
         "As with the stroke and diabetes dataset, the heart dataset share very similar factors.")
     st.write("When looking at the imbalance, we notice the heart disease dataset is no differet."
-             "The number of people with Heart disease or Heart attack is " + str(sum(df_heart['Heartdiseaseorattack'])) + ". Compare that to the total number of people: " + str(len(df_heart['Heartdiseaseorattack'])) + ".")
+             "The number of people with Heart disease or Heart attack is " + str(sum(df_heart['HeartDiseaseorAttack'])) + ". Compare that to the total number of people: " + str(len(df_heart['HeartDiseaseorAttack'])) + ".")
 
     st.write("Initial Heart Disease Dataset:")
     st.write(df_heart['HeartDiseaseorAttack'].value_counts())
