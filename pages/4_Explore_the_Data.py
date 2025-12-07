@@ -364,7 +364,7 @@ with st.expander("Heart Disease (can take about 90 seconds to load all data)"):
     # -----------------------
     st.subheader("Heart Dataset")
     X_heart = df_heart_smote.drop('HeartDiseaseorAttack', axis=1)
-    y_heart = df_heart_smote['Heart Disease orAttack']
+    y_heart = df_heart_smote['HeartDiseaseorAttack']
     feat_imp_heart, rf_heart = train_rf_feature_importance(X_heart, y_heart)
     plot_feature_importance(feat_imp_heart, "Heart Dataset - Feature Importance (Random Forest)", palette='viridis')
 
