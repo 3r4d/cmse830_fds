@@ -392,11 +392,12 @@ with st.expander("Heart Disease"):
     )
 
     # --------------------------------------------------------------------
-    # D. Linear SVM for Heart Disease Dataset (Kept on Full Data)
+    # D. Linear SVM for Heart Disease Dataset (Downsampled to 30000)
     # --------------------------------------------------------------------
-    # Linear SVM is much faster and can handle the full 460k samples in a reasonable time.
-    st.subheader("Linear Kernel SVM Analysis (Full Data)")
+    # We will use the already downsampled data (df_heart_rbf_downsampled)
+    # to maintain a consistent comparison size with the RBF kernel model.
+    st.subheader(f"Linear Kernel SVM Analysis (Downsampled N={len(df_heart_rbf_downsampled)})")
     acc_heart_lin, report_heart_lin, coef_heart = train_linear_svm_and_show_coefficients(
-        df_heart_smote.copy(),
+        df_heart_rbf_downsampled.copy(),  # Use the downsampled data
         'HeartDiseaseorAttack'
     )
