@@ -317,7 +317,7 @@ with st.expander("Stroke"):
     # A. SVM for Stroke Dataset
     # --------------------------------------------------------------------
     st.write(
-        "Below you'll see two support vector models showing an 87% accuracy and a 77% accuracy respetively. The first model while more successful cannot be directly tied to variable while the lower accuracy can be. You'll see several factors along with their weight/importance")
+        "Below you'll see two support vector models (SVM and liner SVM) showing an 87% accuracy and a 77% accuracy respetively. The first model while more successful cannot be directly tied to variable while the lower accuracy can be. You'll see several factors along with their weight/importance")
 
     perform_svm_classification(df_stroke_smote, 'stroke', "Stroke Dataset")
 
@@ -347,7 +347,7 @@ with st.expander("Diabetes"):
     # We need a copy of the balanced diabetes data to ensure 'gender' and
     # 'smoking_history' are encoded numerically before scaling for the model.
     st.write(
-        "Below you'll see two support vector models showing an 90% accuracy and a 88% accuracy respetively. The first model while more successful cannot be directly tied to variable while the lower accuracy can be. You'll see several factors along with their weight/importance")
+        "Below you'll see two support vector models (SVM and liner SVM) showing an 90% accuracy and a 88% accuracy respetively. The first model while more successful cannot be directly tied to variable while the lower accuracy can be. You'll see several factors along with their weight/importance")
 
     df_diabetes_svm = df_balanced_diabetes.copy()
     perform_svm_classification(df_diabetes_svm, 'diabetes', "Diabetes Dataset")
@@ -372,7 +372,7 @@ with st.expander("Heart Disease (can take about 90 seconds to load all data)"):
     # C. SVM for Heart Disease Dataset (Downsampled RBF Kernel)
     # --------------------------------------------------------------------
     st.write(
-        "Below you'll see two support vector models showing an 76% accuracy and a 75% accuracy respetively. The first model while more successful cannot be directly tied to variable while the lower accuracy can be. You'll see several factors along with their weight/importance")
+        "Below you'll see two support vector models (SVM and liner SVM) showing an 76% accuracy and a 75% accuracy respetively. The first model while more successful cannot be directly tied to variable while the lower accuracy can be. You'll see several factors along with their weight/importance")
 
     st.subheader("RBF Kernel SVM Analysis (Downsampled)")
     st.markdown("**Downsampling Note:** The RBF kernel SVM is a complex and timely, therefore the training data was limited to 5,000 samples to reduce comuptation time.")
