@@ -22,7 +22,7 @@ import numpy as np
 # Streamlit Page Setup
 # -----------------------
 st.set_page_config(page_title="Stroke, Diabetes, & Heart Disease Analysis", layout="wide")
-st.title("Stroke & Diabetes Dataset Analysis")
+st.title("Stroke, Diabetes, & Heart Disease Analysis")
 
 
 
