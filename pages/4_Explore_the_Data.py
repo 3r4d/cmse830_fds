@@ -413,3 +413,82 @@ plot_pca_2d(df_heart_pca, 'HeartDiseaseorAttack', "Heart Disease Dataset")
 # Optional: Scree Plot to determine optimal components for Heart Disease
 pca_full_heart = PCA().fit(X_heart_scaled)
 plot_scree_plot(pca_full_heart, "Heart Disease Dataset (Full PCA)")
+
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report, confusion_matrix
+import pandas as pd
+import streamlit as st
+
+# Assuming df_stroke_smote, df_balanced_diabetes, and df_heart_smote
+# are already defined, cleaned, and balanced as in your initial code block.
+
+# --- Helper Function for SVM ---
+def perform_svm_classification(df, target_col, dataset_name):
+    """
+    Performs data splitting, scaling, SVC training, and evaluation.
+    """
+    st.subheader(f"{dataset_name} - Support Vector Machine (SVM)")
+
+    # 1. Separate Features (X) and Target (y)
+    X = df.drop(target_col, axis=1)
+    y = df[target_col]
+
+    # 2. Handle Categorical Features (Necessary for Diabetes dataset)
+    # The Stroke and Heart datasets already have numerical features from your setup.
+    le = LabelEncoder()
+    if 'gender' in X.columns:
+        X['gender'] = le.fit_transform(X['gender'])
+    if 'smoking_history' in X.columns:
+        X['smoking_history'] = le.fit_transform(X['smoking_history'])
+    if 'Sex' in X.columns:
+        X['Sex'] = le.fit_transform(X['Sex'])
+    if 'smoker' in X.columns:
+        X['smoker'] = le.fit_transform(X['smoker'])
+
+
+    # 3. Split the Data
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=42, stratify=y
+    )
+
+    # 4. Standardize the Features (Critical for SVM)
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    # 5. Model Training (Using a radial basis function (RBF) kernel)
+    svm_model = SVC(kernel='rbf', random_state=42)
+    svm_model.fit(X_train_scaled, y_train)
+
+    # 6. Evaluation
+    y_pred = svm_model.predict(X_test_scaled)
+
+    st.text(f"Classification Report for {dataset_name}:")
+    st.code(classification_report(y_test, y_pred))
+
+    st.text(f"Confusion Matrix for {dataset_name}:")
+    st.code(confusion_matrix(y_test, y_pred))
+    st.markdown("---")
+
+
+# --------------------------------------------------------------------
+# A. SVM for Stroke Dataset
+# --------------------------------------------------------------------
+perform_svm_classification(df_stroke_smote, 'stroke', "Stroke Dataset")
+
+# --------------------------------------------------------------------
+# B. SVM for Diabetes Dataset
+# --------------------------------------------------------------------
+# We need a copy of the balanced diabetes data to ensure 'gender' and
+# 'smoking_history' are encoded numerically before scaling for the model.
+df_diabetes_svm = df_balanced_diabetes.copy()
+perform_svm_classification(df_diabetes_svm, 'diabetes', "Diabetes Dataset")
+
+
+# --------------------------------------------------------------------
+# C. SVM for Heart Disease Dataset
+# --------------------------------------------------------------------
+perform_svm_classification(df_heart_smote, 'HeartDiseaseorAttack', "Heart Disease Dataset")
