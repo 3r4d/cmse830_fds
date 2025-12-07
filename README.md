@@ -1,12 +1,13 @@
 Stroke and Diabetes comparison
 
-Goal: The goal of this project is to look at the stroke and diabetes dataset, clean the data, find correlations of risk factors between the two, and provide visualizations and interactive plots for users to better understand the risk factors. Also to provide information for helping manage the risk factors. 
+Goal: The goal of this project is to look at the stroke, diabetes, and heart disease dataset, clean the data, find correlations of risk factors between the three, and provide visualizations and interactive plots for users to better understand the risk factors. Also to provide information for helping manage the risk factors. 
 After finding correlative risk factors, allow users to see how the managable (changable) risk factors increase or decrease the likelihood of them developing the disease. 
 
 How it's made: This app is coded in python and adapted to run with the streamlit application creator. Several python libraries were utilized and two Kaggle datasets.
 Datasets: 
 Stroke: https://www.kaggle.com/datasets/fedesoriano/stroke-prediction-dataset
 Diabetes: https://www.kaggle.com/datasets/iammustafatz/diabetes-prediction-dataset
+Heart Disease: https://www.kaggle.com/datasets/johnsmith88/heart-disease-dataset
 
 The requirements are: 
 streamlit
