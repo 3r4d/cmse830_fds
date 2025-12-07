@@ -399,7 +399,7 @@ with st.expander("Failed Feature Engineering"):
     plot_scree_plot(pca_full_heart, "Heart Disease Dataset (Full PCA)")
 
 
-with st.expander("CMSE830 Rubric info used on this page for ease of grading (to be removed after grading) "):
+with st.expander("CMSE830 Rubric info used in the project not easily seen for ease of grading (to be removed after grading) "):
     st.write("Data Collection: Three datasets used, checked for missing values, several columns dropped from all datasets to match variables across the datasets, Column reordering.")
     st.write("Exploratory Data Analysis and Visualization: 3 visualizations on effects of aging page, 3 random forest visuals on Explore the data, 6 heat maps on advanced data.   ")
     st.write("Data Processing and Feature Engineering: One hot encoding used during data cleaning, scaling used in calibrated model in how at risk am i page, PCA used in failed feature engineering tab in advanced data, SVM used in explore the data  ")
