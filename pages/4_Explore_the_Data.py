@@ -418,7 +418,7 @@ plot_scree_plot(pca_full_heart, "Heart Disease Dataset (Full PCA)")
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.svm import SVC
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 import pandas as pd
 import streamlit as st
 
