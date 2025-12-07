@@ -173,7 +173,6 @@ def perform_svm_classification(df, target_col, dataset_name):
     Performs data splitting, scaling, SVC training, and evaluation.
     """
     st.subheader(f"{dataset_name} - Support Vector Machine (SVM)")
-    st.write("Below you'll see two support vector models showing an 87% accuracy and a 77% accuracy respetively. The first model while more successful cannot be directly tied to variable while the lower accuracy can be. You'll see several factors along with their weight/importance")
     # 1. Separate Features (X) and Target (y)
     X = df.drop(target_col, axis=1)
     y = df[target_col]
@@ -306,7 +305,6 @@ with st.expander("Stroke"):
     # -----------------------
     # Stroke Random Forest
     # -----------------------
-    st.header("Risk Factors for Stroke, Diabetes, and Heart disease")
 
     st.subheader("Stroke Dataset")
     X_stroke = df_stroke_smote.drop('stroke', axis=1)
@@ -318,6 +316,8 @@ with st.expander("Stroke"):
     # A. SVM for Stroke Dataset
     # --------------------------------------------------------------------
     perform_svm_classification(df_stroke_smote, 'stroke', "Stroke Dataset")
+    st.write(
+        "Below you'll see two support vector models showing an 87% accuracy and a 77% accuracy respetively. The first model while more successful cannot be directly tied to variable while the lower accuracy can be. You'll see several factors along with their weight/importance")
 
     # --- 1. Linear SVM on Stroke Dataset ---
     acc_stroke_lin, report_stroke_lin, coef_stroke = train_linear_svm_and_show_coefficients(
