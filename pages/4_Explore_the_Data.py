@@ -492,3 +492,114 @@ perform_svm_classification(df_diabetes_svm, 'diabetes', "Diabetes Dataset")
 # C. SVM for Heart Disease Dataset
 # --------------------------------------------------------------------
 perform_svm_classification(df_heart_smote, 'HeartDiseaseorAttack', "Heart Disease Dataset")
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.svm import SVC
+import pandas as pd
+import streamlit as st
+import numpy as np
+
+
+# --- Helper function for Linear SVM ---
+@st.cache_data
+def train_linear_svm_and_show_coefficients(df, target_col, random_state=42):
+    """
+    Trains a Linear SVM model, evaluates it, and displays feature coefficients.
+
+    Args:
+        df (pd.DataFrame): The input balanced DataFrame.
+        target_col (str): The name of the target column.
+        random_state (int): Seed for reproducibility.
+
+    Returns:
+        tuple: (accuracy, report, coefficients_df)
+    """
+    st.header(f"Linear SVM Analysis for {target_col.replace('_', ' ').title()}")
+
+    # 1. Separate Features (X) and Target (y)
+    X = df.drop(target_col, axis=1)
+    y = df[target_col]
+
+    # Handle categorical features for Diabetes (ensure numerical encoding)
+    if target_col == 'diabetes':
+        le = LabelEncoder()
+        for col in ['gender', 'smoking_history']:
+            if col in X.columns and X[col].dtype == 'object':
+                X[col] = le.fit_transform(X[col])
+
+    feature_names = X.columns  # Store original feature names
+
+    # 2. Split Data
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.25, random_state=random_state, stratify=y
+    )
+
+    # 3. Standardize Features (CRUCIAL for Linear SVM and Coefficient Interpretation)
+    # The coefficients are only comparable if features are scaled first.
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    # 4. Train the Linear SVM Model
+    # Use kernel='linear' and increase C for less regularization if needed,
+    # but C=1.0 is a good starting point.
+    svm_model = SVC(kernel='linear', random_state=random_state, C=1.0)
+    svm_model.fit(X_train_scaled, y_train)
+
+    # 5. Evaluate (Optional, but good practice)
+    y_pred = svm_model.predict(X_test_scaled)
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_test, y_pred, output_dict=False, zero_division=0)
+
+    st.subheader("Model Performance")
+    st.write(f"**Accuracy on Test Set:** **{accuracy:.4f}**")
+    st.code(report)
+
+    # --------------------------------------------------------
+    # 6. Extract and Display Coefficients (The core request)
+    # --------------------------------------------------------
+
+    # Linear SVM coefficients are stored in the 'coef_' attribute
+    # Since we have binary classification, coef_ will be a 1xN array (N=features)
+    coefficients = svm_model.coef_[0]
+
+    # Create DataFrame for easy sorting and display
+    coefficients_df = pd.DataFrame({
+        'Feature': feature_names,
+        'Coefficient': coefficients,
+        'Magnitude': np.abs(coefficients)  # Absolute value for importance ranking
+    }).sort_values(by='Magnitude', ascending=False)
+
+    st.subheader("Feature Importance from Linear SVM Coefficients")
+    st.markdown(
+        "The **Magnitude** indicates the importance, and the **Coefficient** sign (+/-) indicates the direction of influence on the likelihood of the positive class (1)."
+    )
+    st.dataframe(coefficients_df)
+
+    return accuracy, report, coefficients_df
+
+
+# --------------------------------------------------------------------------------
+# Main Execution for the Three Datasets
+# --------------------------------------------------------------------------------
+
+st.title("Linear SVM Modeling and Interpretation")
+
+# Ensure df_stroke_smote, df_balanced_diabetes, and df_heart_smote are available in the scope
+# (This assumes the data loading and balancing code from the prompt is executed before this block)
+
+# --- 1. Linear SVM on Stroke Dataset ---
+acc_stroke_lin, report_stroke_lin, coef_stroke = train_linear_svm_and_show_coefficients(
+    df_stroke_smote.copy(), 'stroke'
+)
+
+# --- 2. Linear SVM on Diabetes Dataset ---
+acc_diabetes_lin, report_diabetes_lin, coef_diabetes = train_linear_svm_and_show_coefficients(
+    df_balanced_diabetes.copy(), 'diabetes'
+)
+
+# --- 3. Linear SVM on Heart Disease Dataset ---
+acc_heart_lin, report_heart_lin, coef_heart = train_linear_svm_and_show_coefficients(
+    df_heart_smote.copy(), 'HeartDiseaseorAttack'
+)
