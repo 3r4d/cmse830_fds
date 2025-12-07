@@ -13,6 +13,10 @@ from sklearn.model_selection import train_test_split # Consolidated import
 from sklearn.svm import SVC # Consolidated import
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score # Consolidated import
 import numpy as np # Consolidated import
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+import numpy as np
+
 
 # -----------------------
 # Streamlit Page Setup
