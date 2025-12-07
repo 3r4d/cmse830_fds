@@ -2,7 +2,7 @@ streamlit
 seaborn
 pandas
 numpy
+altair
 matplotlib
 scikit-learn
 imblearn
-altair
