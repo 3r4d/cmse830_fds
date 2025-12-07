@@ -197,10 +197,133 @@ with st.expander("Heart Disease"):
     feat_imp_heart, rf_heart = train_rf_feature_importance(X_heart, y_heart)
     plot_feature_importance(feat_imp_heart, "Heart Dataset - Feature Importance (Random Forest)", palette='viridis')
 
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+import numpy as np
 
 
+# --- 1. PCA Function Definition ---
+def perform_pca(df, target_col, n_components=2):
+    """
+    Performs PCA on a given DataFrame.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame.
+        target_col (str): The name of the target column to be excluded from PCA.
+        n_components (int): The number of principal components to return.
+
+    Returns:
+        tuple: (df_pca, pca_model, X_scaled) - DataFrame with components, the PCA model, and the scaled features.
+    """
+    st.subheader(f"PCA on {target_col.capitalize()} Dataset")
+
+    # 1. Separate Features and Target
+    X = df.drop(target_col, axis=1)
+    y = df[target_col]
+
+    # 2. Standardize the Data
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    X_scaled_df = pd.DataFrame(X_scaled, columns=X.columns)
+
+    # 3. Apply PCA
+    pca = PCA(n_components=n_components)
+    principal_components = pca.fit_transform(X_scaled)
+
+    # Create a DataFrame for the principal components
+    column_names = [f'PC{i + 1}' for i in range(n_components)]
+    df_pca = pd.DataFrame(data=principal_components, columns=column_names)
+    df_pca[target_col] = y.reset_index(drop=True)
+
+    st.write(f"**Explained Variance Ratio for {n_components} components:**")
+    st.code(pca.explained_variance_ratio_)
+    st.write(f"**Total Explained Variance:** {np.sum(pca.explained_variance_ratio_):.2f}")
+
+    return df_pca, pca, X_scaled_df
 
 
+# --- 2. Scree Plot Function for Optimal Component Selection ---
+def plot_scree_plot(pca_model, title):
+    """Plots the explained variance ratio to help select the number of components."""
+    fig, ax = plt.subplots(figsize=(8, 5))
+    explained_variance = pca_model.explained_variance_ratio_
+    components = range(1, len(explained_variance) + 1)
+
+    ax.bar(components, explained_variance)
+    ax.plot(components, explained_variance.cumsum(), marker='o', linestyle='--', color='red')
+
+    ax.set_xlabel('Principal Component')
+    ax.set_ylabel('Explained Variance Ratio')
+    ax.set_title(f'Scree Plot for {title}')
+    ax.set_xticks(components)
+    ax.grid(True)
+
+    st.pyplot(fig)
 
 
+# --- 3. 2D PCA Visualization Function ---
+def plot_pca_2d(df_pca, target_col, title):
+    """Plots the first two principal components."""
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    # Ensure the target column is categorical for distinct colors
+    sns.scatterplot(
+        x='PC1',
+        y='PC2',
+        hue=df_pca[target_col].astype(str),
+        palette='viridis',
+        data=df_pca,
+        ax=ax,
+        s=50,
+        alpha=0.6
+    )
+    ax.set_title(f'2D PCA of {title}')
+    ax.set_xlabel('Principal Component 1')
+    ax.set_ylabel('Principal Component 2')
+
+    st.pyplot(fig)
+
+
+# -----------------------------------------------------------
+# Perform PCA on the Three Balanced Datasets
+# -----------------------------------------------------------
+
+st.header("✨ Principal Component Analysis (PCA)")
+st.write(
+    "PCA is used here to reduce the dimensionality of the datasets while retaining as much of the original variance as possible. This also helps in visualizing the data.")
+
+# --- PCA for Stroke Dataset ---
+df_stroke_pca, pca_stroke, X_stroke_scaled = perform_pca(df_stroke_smote, 'stroke')
+plot_pca_2d(df_stroke_pca, 'stroke', "Stroke Dataset")
+
+# Optional: Scree Plot to determine optimal components for Stroke
+pca_full_stroke = PCA().fit(X_stroke_scaled)
+plot_scree_plot(pca_full_stroke, "Stroke Dataset (Full PCA)")
+
+---
+# --- PCA for Diabetes Dataset ---
+# Need to ensure 'gender' and 'smoking_history' are numerically encoded for df_balanced_diabetes
+# before standardizing and applying PCA, as done in the feature importance section.
+
+df_diabetes_pca_data = df_balanced_diabetes.copy()
+# Re-apply Label Encoding just in case the original function didn't save the changes globally
+le = LabelEncoder()
+df_diabetes_pca_data['gender'] = le.fit_transform(df_diabetes_pca_data['gender'])
+df_diabetes_pca_data['smoking_history'] = le.fit_transform(df_diabetes_pca_data['smoking_history'])
+
+df_diabetes_pca, pca_diabetes, X_diabetes_scaled = perform_pca(df_diabetes_pca_data, 'diabetes')
+plot_pca_2d(df_diabetes_pca, 'diabetes', "Diabetes Dataset")
+
+# Optional: Scree Plot to determine optimal components for Diabetes
+pca_full_diabetes = PCA().fit(X_diabetes_scaled)
+plot_scree_plot(pca_full_diabetes, "Diabetes Dataset (Full PCA)")
+
+---
+# --- PCA for Heart Disease Dataset ---
+df_heart_pca, pca_heart, X_heart_scaled = perform_pca(df_heart_smote, 'HeartDiseaseorAttack')
+plot_pca_2d(df_heart_pca, 'HeartDiseaseorAttack', "Heart Disease Dataset")
+
+# Optional: Scree Plot to determine optimal components for Heart Disease
+pca_full_heart = PCA().fit(X_heart_scaled)
+plot_scree_plot(pca_full_heart, "Heart Disease Dataset (Full PCA)")
 
